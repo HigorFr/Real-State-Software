@@ -1,9 +1,10 @@
+from datetime import datetime
 from flask import Blueprint, jsonify, request
 from serviços.usuário import UsuárioDatabase
 
 usuário_blueprint = Blueprint("usuário", __name__)
 
-@usuário_blueprint.route("/usuário", methods=["POST"])
+@usuário_blueprint.route("/usuário/cadastro", methods=["POST"])
 def cria_usuário():
     json = request.get_json()
     cpf = json.get("cpf")
@@ -51,3 +52,41 @@ def adiciona_telefones_usuário():
         return jsonify("Não foi possível efetuar esse cadastro."), 400
 
     return jsonify("Cadastaro realizado com sucesso."), 200
+
+@usuário_blueprint.route("/usuário/telefones", methods=["DELETE"])
+def remove_telefones_usuário():
+    json = request.get_json()
+    cpf =  json.get("cpf")
+    tel_usuario = json.get("telefones") #aqui vc passa uma lista separada por vírgula
+
+    if not all([cpf, tel_usuario]):
+        return jsonify("Todos os campos (cpf, telefones) são obrigatórios"), 400
+    
+
+    registro_tel=UsuárioDatabase().deleta_tel_usuário(
+        cpf,
+        tel_usuario
+    )
+
+    if not registro_tel:
+        return jsonify("Não foi possível remover os telefones."), 400
+
+    return jsonify("Telefones removidos com sucesso."), 200
+
+@usuário_blueprint.route("/usuário/deleta", methods=["DELETE"])
+def deleta_usuário():
+    json = request.get_json()
+    cpf =  json.get("cpf")
+
+    if not cpf:
+        return jsonify("Campo cpf é obrigatório"), 400
+    
+
+    registro=UsuárioDatabase().deleta_usuário(
+        cpf
+    )
+
+    if not registro:
+        return jsonify("Não foi possível deletar o usuário."), 400
+
+    return jsonify("Usuário deletado com sucesso."), 200

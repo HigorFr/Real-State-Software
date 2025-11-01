@@ -1,4 +1,6 @@
+from datetime import date, datetime
 from serviços.database.conector import DatabaseManager
+from serviços.contrato import ContratoDatabase
 
 class ImóvelDatabase:
     def __init__(self, db_provider=DatabaseManager()) -> None:
@@ -131,7 +133,7 @@ class ImóvelDatabase:
     
     def get_status_imovel(self, matrícula: str):
         statement = f"""
-            SELECT c.status FROM imóvel i LEFT JOIN contrato c ON i.matrícula = c.matrícula_imóvel WHERE i.matrícula='{matrícula}' ORDER BY c.código DESC; \n
+            SELECT c.código, c.status, c.data_fim FROM imóvel i LEFT JOIN contrato c ON i.matrícula = c.matrícula_imóvel WHERE i.matrícula='{matrícula}' ORDER BY c.código DESC; \n
         """
         
         resultado_lista = self.db.execute_select_all(statement)
@@ -140,10 +142,90 @@ class ImóvelDatabase:
         
         primeira_linha_dict = resultado_lista[0]
         status_do_banco = primeira_linha_dict['status']
+        data_fim_do_banco = primeira_linha_dict['data_fim']
 
-        if status_do_banco is None or status_do_banco== 'Finalizado' or status_do_banco == 'Cancelado':
+        if status_do_banco is None or status_do_banco=='Finalizado' or status_do_banco == 'Cancelado':
             return "Disponível"
         elif status_do_banco == 'Ativo':
+            if data_fim_do_banco<=datetime.now().date():
+                ContratoDatabase().altera_status_contrato(primeira_linha_dict['código'], 'Finalizado')
+                return "Disponível"
             return "Alugado"
         else:
             return status_do_banco
+        
+        
+    def cadastra_imóvel(self, matrícula:str, n_quartos: int, valor_venal: float, metragem: float, tipo: str, mobiliado: bool, possui_garagem: bool, n_reformas: int, finalidade: str, logradouro: str, complemento:str, número: str, CEP: str, cidade: str, cpf_prop: str):
+        statement = f"""
+            INSERT INTO imóvel (matrícula, n_quartos, valor_venal, metragem, tipo, mobiliado, possui_garagem, n_reformas, finalidade, logradouro, complemento, número, CEP, cidade, CPF_prop)
+            VALUES ('{matrícula}', {n_quartos}, {valor_venal}, {metragem}, '{tipo}', {mobiliado}, {possui_garagem}, {n_reformas}, '{finalidade}', '{logradouro}', '{complemento}','{número}', '{CEP}', '{cidade}', '{cpf_prop}'); \n
+        """
+        
+        return self.db.execute_statement(statement)
+    
+    def altera_imóvel(self, matrícula:str, n_quartos: int, valor_venal: float, metragem: float, tipo: str, mobiliado: bool, possui_garagem: bool, n_reformas: int, finalidade: str):
+        statement = f"""
+            UPDATE imóvel
+            SET 
+        """
+        if n_quartos is not None:
+            statement += f"""n_quartos = {n_quartos}, \n"""
+        if valor_venal:
+            statement += f"""valor_venal = {valor_venal}, \n"""
+        if metragem:
+            statement += f"""metragem = {metragem}, \n"""
+        if finalidade:
+            statement += f"""finalidade = '{finalidade}', \n"""
+        if tipo:
+            statement += f"""tipo = '{tipo}', \n"""
+        if mobiliado is not None:
+            statement += f"""mobiliado = {mobiliado}, \n""" 
+        if possui_garagem is not None:
+            statement += f"""possui_garagem = {possui_garagem}, \n"""   
+        if n_reformas is not None:
+            statement += f"""n_reformas = {n_reformas}, \n"""
+
+        statement = statement.rstrip(", \n")  # Remove a vírgula e nova linha extras do final
+
+
+        statement += f""" \n WHERE matrícula = '{matrícula}'; \n"""
+        return self.db.execute_statement(statement)
+    
+    def altera_proprietario_imóvel(self, matrícula:str, cpf_prop: str):
+        statement = f"""
+            UPDATE imóvel
+            SET CPF_prop = '{cpf_prop}'
+            WHERE matrícula = '{matrícula}'; \n
+        """
+        return self.db.execute_statement(statement)
+    
+    def adiciona_comodidades_imóvel(self, matrícula:str, comodidades: str):
+        statement = """
+                INSERT INTO comodidades_imóvel(matrícula, comodidade) VALUES \n
+        """
+
+        comodidade_list = comodidades.split(",")
+        for item in comodidade_list:
+            comodidade_item = item.strip()
+            statement += f"('{matrícula}', '{comodidade_item}'), \n"
+
+        statement = statement.rstrip(", \n")  # Remove a vírgula e nova linha extras do final
+        statement += "; \n"
+        return self.db.execute_statement(statement)
+    
+    def remove_comodidades_imóvel(self, matrícula:str, comodidades: str):
+        comodidade_list = [item.strip() for item in comodidades.split(",")]
+        comodidade_str = "', '".join(comodidade_list)
+
+        statement = f"""
+            DELETE FROM comodidades_imóvel
+            WHERE matrícula = '{matrícula}' AND comodidade IN ('{comodidade_str}'); \n
+        """
+        return self.db.execute_statement(statement)
+    
+    def deleta_imóvel(self, matrícula:str):
+        statement = f"""
+            DELETE FROM imóvel
+            WHERE matrícula = '{matrícula}'; \n
+        """
+        return self.db.execute_statement(statement)

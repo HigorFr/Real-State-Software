@@ -1,5 +1,5 @@
 from serviços.database.conector import DatabaseManager
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 class ContratoDatabase:
     def __init__(self, db_provider=DatabaseManager()) -> None:
@@ -20,3 +20,34 @@ class ContratoDatabase:
 
         """
         return self.db.execute_select_all(query)
+    
+    def insere_contrato(self, código:int, valor:float, status:str,data_início:date, data_fim:date, tipo:str, matrícula_imóvel:str, CPF_prop:str, CPF_corretor:str):
+        statement = f"""
+            INSERT INTO contrato (código, valor, status, data_início, data_fim, tipo, matrícula_imóvel, CPF_prop, CPF_corretor)
+            VALUES ({código}, {valor}, '{status}', '{data_início}', '{data_fim}', '{tipo}', '{matrícula_imóvel}', '{CPF_prop}', '{CPF_corretor}'); \n
+        """
+        
+        return self.db.execute_statement(statement)
+    
+    def completa_adquirente(self, CPF_adq:str, código_c:int):
+       statement = f"""
+            INSERT INTO assina(CPF_adq, código_c) VALUES ('{CPF_adq}', {código_c}); \n
+        """ 
+       return self.db.execute_statement(statement)
+
+    
+    def deleta_contrato(self, código:int):
+        statement = f"""
+            DELETE FROM contrato
+            WHERE código = {código}; \n
+        """
+        return self.db.execute_statement(statement) 
+    
+    def altera_status_contrato(self, código:int, status:str):
+        statement = f"""
+            UPDATE contrato
+            SET 
+                status = '{status}'
+            WHERE código = {código}; \n
+        """
+        return self.db.execute_statement(statement)

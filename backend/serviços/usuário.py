@@ -29,3 +29,24 @@ class UsuárioDatabase:
                 statement += f"('{cpf}', '{item}'); \n"
 
         return self.db.execute_statement(statement)
+    
+    def deleta_tel_usuário(self, cpf: str, tel_usuario: str): #aqui vc passa uma lista separada por vírgula
+        tel_list_limpa = [tel.strip() for tel in tel_usuario.split(',') if tel.strip()] #para limpar a lista e não quebrar a consulta
+        if not tel_list_limpa:
+            return
+
+        tel_str = "', '".join(tel_list_limpa)
+
+        statement = f"""
+            DELETE FROM tel_usuário
+            WHERE CPF = '{cpf}' AND telefone IN ('{tel_str}'); \n
+        """
+
+        return self.db.execute_statement(statement)
+    
+    def deleta_usuário(self, cpf: str):
+        statement = f"""
+            DELETE FROM usuário
+            WHERE CPF = '{cpf}'; \n
+        """
+        return self.db.execute_statement(statement)
