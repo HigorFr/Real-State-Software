@@ -2,6 +2,7 @@
 from flask import Flask, jsonify
 from rotas.imóvel import imovel_blueprint
 from rotas.usuário import usuário_blueprint
+from rotas.contrato import contrato_blueprint
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -13,4 +14,5 @@ def resposta_estado():
 
 app.register_blueprint(imovel_blueprint)
 app.register_blueprint(usuário_blueprint)
+app.register_blueprint(contrato_blueprint)
 app.run("0.0.0.0",port=8000,debug=False)
