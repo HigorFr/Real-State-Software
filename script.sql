@@ -327,3 +327,4 @@ INSERT INTO assina(CPF_adq, código_c) VALUES
 ('20540670822', 6);
 
 
+
