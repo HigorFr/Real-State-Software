@@ -118,3 +118,10 @@ def get_valores_contrato_imóvel(): #obtém histórico de valores dos contratos 
 @contrato_blueprint.route("/contratos/obter-mais-alugados",  methods=["GET"])
 def get_mais_alugados(): #obtém os imóveis mais alugados
     return jsonify(ContratoDatabase().get_mais_alugados()),200
+
+@contrato_blueprint.route("/contratos/obter-pessoas-imóvel",  methods=["GET"])
+def get_histórico_pessoas_imóvel(): #devolve o histórico de proprietários e adquirentes de um imóvel por contrato
+    matrícula = request.args.get("matrícula", "")
+    return jsonify(ContratoDatabase().get_histórico_pessoas_imóvel(
+        matrícula
+    )),200

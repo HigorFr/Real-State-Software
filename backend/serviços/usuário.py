@@ -50,3 +50,16 @@ class UsuárioDatabase:
             WHERE CPF = '{cpf}'; \n
         """
         return self.db.execute_statement(statement)
+
+    def get_perfil_imóvel_adquirente(self, cpf:str): #obtém o perfil de imóveis de um adquirente
+        statement=f"""
+        SELECT u.prenome, u.sobrenome, i.tipo AS tipo_de_imóvel, i.finalidade, c.tipo AS tipo_de_contrato, COUNT(*) AS total_de_contratos
+        FROM usuário u
+        JOIN assina a ON u.CPF = a.CPF_adq
+        JOIN contrato c ON a.código_c = c.código
+        JOIN imóvel i ON c.matrícula_imóvel = i.matrícula
+        WHERE u.CPF='{cpf}'
+        GROUP BY u.CPF, i.tipo, i.finalidade, c.tipo 
+        ORDER BY u.prenome, total_de_contratos DESC;
+        """
+        return self.db.execute_select_all(statement)

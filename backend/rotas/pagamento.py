@@ -80,3 +80,10 @@ def atualiza_status_pagamento():  #muda o status de um pagamento de um contrato
         return jsonify("Não foi possível atualizar o status do pagamento."), 400
 
     return jsonify("Status do pagamento atualizado corretamente."), 200
+
+@pagamento_blueprint.route("/pagamento/extrato", methods=["GET"])
+def get_extrato_pagamento_imóvel(): #obtem o extrato financeiro por contrato (quantos e quais pagamentos já foram realizados)
+    matrícula_imóvel=request.args.get("matrícula","")
+    return jsonify(PagamentoDatabase().get_extrato_pagamento_contrato(
+        matrícula_imóvel)),200
+    

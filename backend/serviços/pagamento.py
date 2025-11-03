@@ -42,3 +42,14 @@ class PagamentoDatabase:
             return "Atrasado"
 
         return status_do_banco
+    
+    def get_extrato_pagamento_contrato(self, matrícula_imóvel: str): #obtem o extrato financeiro por contrato (quantos e quais pagamentos já foram realizados)
+        statement=f"""
+        SELECT  p.código_c, p.n_pagamento, p.status, p.valor, p.data_vencimento, p.data_pagamento
+        FROM pagamento p
+        JOIN contrato c ON p.código_c = c.código
+        WHERE c.matrícula_imóvel = '{matrícula_imóvel}'
+        ORDER BY p.data_vencimento DESC;
+        """
+
+        return self.db.execute_select_all(statement)

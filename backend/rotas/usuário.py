@@ -90,3 +90,10 @@ def deleta_usuário(): #deleta um usuário
         return jsonify("Não foi possível deletar o usuário."), 400
 
     return jsonify("Usuário deletado com sucesso."), 200
+
+@usuário_blueprint.route("/usuário/perfis-imóveis", methods=["GET"])
+def get_perfil_imóvel_adquirente():  #obtém o perfil de imóveis de um adquirente
+    cpf = request.args.get("cpf", "")
+    
+    return jsonify(UsuárioDatabase().get_perfil_imóvel_adquirente(
+        cpf)),200

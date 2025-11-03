@@ -90,3 +90,16 @@ class ContratoDatabase:
         """
         
         return self.db.execute_select_all(statement)
+    
+    def get_histórico_pessoas_imóvel(self, matrícula_imóvel:str): #devolve o histórico de proprietários e adquirentes de um imóvel por contrato
+        statement=f"""      
+        SELECT c.código, c.tipo, c.status, prop.prenome AS proprietario_nome, prop.sobrenome AS proprietario_sobrenome, adq.prenome AS adquirente_nome, adq.sobrenome AS adquirente_sobrenome
+        FROM contrato c
+        JOIN usuário prop ON c.CPF_prop = prop.CPF
+        LEFT JOIN assina a ON c.código = a.código_c
+        LEFT JOIN usuário adq ON a.CPF_adq = adq.CPF
+        WHERE c.matrícula_imóvel = '{matrícula_imóvel}'
+        ORDER BY c.código DESC;
+        """
+
+        return self.db.execute_select_all(statement)
