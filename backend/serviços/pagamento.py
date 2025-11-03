@@ -5,7 +5,7 @@ class PagamentoDatabase:
     def __init__(self, db_provider=DatabaseManager()) -> None:
         self.db = db_provider
 
-    def insere_pagamento(self, código_c:int, n_pagamento:int, data_vencimento:date, data_pagamento:date, valor:float, status:str, forma_pagamento:str, tipo:str):
+    def insere_pagamento(self, código_c:int, n_pagamento:int, data_vencimento:date, data_pagamento:date, valor:float, status:str, forma_pagamento:str, tipo:str): #insere um pagamento referente a um contrato
         statement = f"""
             INSERT INTO pagamento (código_c, n_pagamento, data_vencimento, data_pagamento, valor, status, forma_pagamento, tipo)
             VALUES ({código_c},{n_pagamento},'{data_vencimento}', '{data_pagamento}', {valor}, '{status}','{forma_pagamento}','{tipo}'); \n
@@ -13,7 +13,7 @@ class PagamentoDatabase:
         
         return self.db.execute_statement(statement)
     
-    def atualiza_status_pagamento(self, código_c:int, n_pagamento:int, status:str): 
+    def atualiza_status_pagamento(self, código_c:int, n_pagamento:int, status:str):  #muda o status de um pagamento de um contrato
         statement= f"""
             UPDATE pagamento
             SET 
@@ -23,7 +23,7 @@ class PagamentoDatabase:
         return self.db.execute_statement(statement)
 
 
-    def get_status_pagamento(self, código_c:int, n_pagamento:int):
+    def get_status_pagamento(self, código_c:int, n_pagamento:int): #pega o status de um pagamento (se tiver passado a data de vencimento já muda para atrasado)
         statement = f"""
             SELECT status, data_vencimento FROM pagamento
             WHERE código_c = {código_c} AND n_pagamento = {n_pagamento}; \n

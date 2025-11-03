@@ -5,7 +5,7 @@ from serviços.usuário import UsuárioDatabase
 usuário_blueprint = Blueprint("usuário", __name__)
 
 @usuário_blueprint.route("/usuário/cadastro", methods=["POST"])
-def cria_usuário():
+def cria_usuário(): #cadastra um usuário (sem ainda colocar de qual/quais tipos ele é)
     json = request.get_json()
     cpf = json.get("cpf")
     prenome = json.get("prenome")
@@ -34,7 +34,7 @@ def cria_usuário():
 
 
 @usuário_blueprint.route("/usuário/telefones", methods=["POST"])
-def adiciona_telefones_usuário():
+def adiciona_telefones_usuário(): #insere os telefones de um usuário (aqui vc passa uma lista separada por vírgula)
     json = request.get_json()
     cpf =  json.get("cpf")
     tel_usuario = json.get("telefones") #aqui vc passa uma lista separada por vírgula
@@ -54,7 +54,7 @@ def adiciona_telefones_usuário():
     return jsonify("Cadastaro realizado com sucesso."), 200
 
 @usuário_blueprint.route("/usuário/telefones", methods=["DELETE"])
-def remove_telefones_usuário():
+def remove_telefones_usuário():  # remove os telefones de um usuário (aqui vc passa uma lista separada por vírgula)
     json = request.get_json()
     cpf =  json.get("cpf")
     tel_usuario = json.get("telefones") #aqui vc passa uma lista separada por vírgula
@@ -74,7 +74,7 @@ def remove_telefones_usuário():
     return jsonify("Telefones removidos com sucesso."), 200
 
 @usuário_blueprint.route("/usuário/deleta", methods=["DELETE"])
-def deleta_usuário():
+def deleta_usuário(): #deleta um usuário
     json = request.get_json()
     cpf =  json.get("cpf")
 

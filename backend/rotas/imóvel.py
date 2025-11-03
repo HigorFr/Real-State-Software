@@ -4,7 +4,7 @@ from serviços.imóvel import ImóvelDatabase
 imovel_blueprint = Blueprint("imóvel", __name__)
 
 @imovel_blueprint.route("/imóveis/filtro", methods=["GET"])
-def filtra_imóveis():
+def filtra_imóveis(): #filtra imóveis de acordo com uma série de características (vc ecolhe quantas e quais)
     valor_venal = request.args.get("valor_venal", type=float)
     logradouro = request.args.get("logradouro", "")
     número = request.args.get("número", "")
@@ -42,14 +42,14 @@ def filtra_imóveis():
     )), 200
 
 @imovel_blueprint.route("/imóveis/status", methods=["GET"])
-def verifica_status_imóveis():
+def verifica_status_imóveis(): #obtém os status de um imóvel (se a data de fim de um contrato tiver passado, altera o status do contrato para finalizado e o status do imóvel para disponível)
     matrícula = request.args.get("matrícula", "")
     return jsonify(ImóvelDatabase().get_status_imovel(
         matrícula
     )), 200
 
 @imovel_blueprint.route("/imóveis/cadastro", methods=["POST"])
-def cadastrar_imóvel():
+def cadastrar_imóvel(): #cadastra um novo imóvel
     json = request.get_json()
     cpf_prop = json.get("cpf_prop")
     logradouro = json.get("logradouro")
@@ -94,7 +94,7 @@ def cadastrar_imóvel():
     return jsonify("Imóvel cadastrado com sucesso."), 200
 
 @imovel_blueprint.route("/imóveis/alteração", methods=["PUT"])
-def alterar_imóvel():
+def alterar_imóvel(): #altera alguma carcterística de um imóvel (as comodidades são tratadas em método separado)
     json = request.get_json()
     matrícula = json.get("matrícula")
     n_quartos = json.get("n_quartos")
@@ -127,7 +127,7 @@ def alterar_imóvel():
     return jsonify("Imóvel alterado com sucesso."), 200
 
 @imovel_blueprint.route("/imóveis/alteração/proprietario", methods=["PUT"])
-def alterar_proprietario_imóvel():
+def alterar_proprietario_imóvel(): #altera o proprietário de um imóvel
     json = request.get_json()
     matrícula = json.get("matrícula")
     cpf_prop = json.get("cpf_novo_prop")
@@ -146,7 +146,7 @@ def alterar_proprietario_imóvel():
     return jsonify("Proprietário do imóvel alterado com sucesso."), 200
 
 @imovel_blueprint.route("/imóveis/comodidades", methods=["POST"])
-def adiciona_comodidades_imóvel():
+def adiciona_comodidades_imóvel(): #adiciona comodidades a um imóvel
     json = request.get_json()
     matrícula = json.get("matrícula")
     comodidades = json.get("comodidades")  # aqui você passa uma lista separada por vírgula
@@ -165,7 +165,7 @@ def adiciona_comodidades_imóvel():
     return jsonify("Comodidades adicionadas com sucesso."), 200
 
 @imovel_blueprint.route("/imóveis/comodidades", methods=["DELETE"])
-def remove_comodidades_imóvel():
+def remove_comodidades_imóvel(): #remove as comodiades de um imóvel (através desse e do adicionar que alteramos as comodidades de um imóvel)
     json = request.get_json()
     matrícula = json.get("matrícula")
     comodidades = json.get("comodidades")  # aqui você passa uma lista separada por vírgula
@@ -184,7 +184,7 @@ def remove_comodidades_imóvel():
     return jsonify("Comodidades removidas com sucesso."), 200
 
 @imovel_blueprint.route("/imóveis/deleta", methods=["DELETE"])
-def deleta_imóvel():
+def deleta_imóvel(): #deleta um imóvel
     json = request.get_json()
     matrícula = json.get("matrícula")
 

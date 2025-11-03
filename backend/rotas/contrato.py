@@ -4,12 +4,12 @@ from datetime import datetime
 
 contrato_blueprint = Blueprint("contrato", __name__)
 
-@contrato_blueprint.route("/contratos/prazo", methods=["GET"])
-def contratos_prazo():  
+@contrato_blueprint.route("/contratos/prazo", methods=["GET"]) 
+def contratos_prazo():  #obtém contratos perto de vencer (em até 30 dias)
     return jsonify(ContratoDatabase().get_prazo_contrato()), 200
 
 @contrato_blueprint.route("/contratos/cadastro", methods=["POST"])
-def cadastra_contrato():
+def cadastra_contrato(): #insere um novo contrato e já preenche a tabela assina (liga o contrato ao adquirente)
     json = request.get_json()
     código = json.get("código")
     valor = json.get("valor")
@@ -60,7 +60,7 @@ def cadastra_contrato():
 
 
 @contrato_blueprint.route("/contratos/deleta", methods=["DELETE"])
-def deleta_contrato():
+def deleta_contrato(): #deleta um contrato
     json = request.get_json()
     código = json.get("código")
 
@@ -77,7 +77,7 @@ def deleta_contrato():
     return jsonify("Contrato deletado corretamente."), 200
 
 @contrato_blueprint.route("/contratos/alterar-status", methods=["PUT"])
-def alterar_status_contrato():
+def alterar_status_contrato(): #altera status de um contrato
     json = request.get_json()
     código = json.get("código")
     status = json.get("status")
@@ -95,8 +95,8 @@ def alterar_status_contrato():
 
     return jsonify("Status do contrato alterado corretamente."), 200
 
-@contrato_blueprint.route("/contratos/obter-aluguel",  methods=["GET"])
-def get_periodo_alugueis_imovel():
+@contrato_blueprint.route("/contratos/obter-período-aluguel",  methods=["GET"])
+def get_periodo_alugueis_imovel(): #obtém os períodos dos contratos de aluguel de um imóvel
     matrícula = request.args.get("matrícula", "")
 
     registro=ContratoDatabase().get_período_aluguéis_imóvel(
@@ -105,4 +105,16 @@ def get_periodo_alugueis_imovel():
 
     return jsonify(registro),200
 
+@contrato_blueprint.route("/contratos/alugueis-ativos", methods=["GET"])
+def get_alugueis_ativos(): #obtém contratos de alguel ativos
+    return jsonify(ContratoDatabase().get_alugueis_ativos()),200
 
+@contrato_blueprint.route("/contratos/obter-valores-imóvel",  methods=["GET"])
+def get_valores_contrato_imóvel(): #obtém histórico de valores dos contratos de um imóvel
+    return jsonify(ContratoDatabase().get_valores_contratos_imóvel(
+        matrícula_imóvel = request.args.get("matrícula", "")
+    )),200
+
+@contrato_blueprint.route("/contratos/obter-mais-alugados",  methods=["GET"])
+def get_mais_alugados(): #obtém os imóveis mais alugados
+    return jsonify(ContratoDatabase().get_mais_alugados()),200

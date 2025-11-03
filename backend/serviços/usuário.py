@@ -5,7 +5,7 @@ class UsuárioDatabase:
     def __init__(self, db_provider=DatabaseManager()) -> None:
         self.db = db_provider
 
-    def insere_usuário(self, cpf: str, prenome: str, sobrenome: str, data_nasc:date):
+    def insere_usuário(self, cpf: str, prenome: str, sobrenome: str, data_nasc:date): #cadastra um usuário (sem ainda colocar de qual/quais tipos ele é)
         statement = f"""
             INSERT INTO usuário (CPF, prenome, sobrenome, data_nasc)
             VALUES ('{cpf}', '{prenome}', '{sobrenome}', '{data_nasc}'); \n
@@ -13,7 +13,7 @@ class UsuárioDatabase:
         
         return self.db.execute_statement(statement)
     
-    def insere_lista_tel_usuário(self, cpf: str, tel_usuario: str): #aqui vc passa uma lista separada por vírgula
+    def insere_lista_tel_usuário(self, cpf: str, tel_usuario: str): #insere os telefones de um usuário (aqui vc passa uma lista separada por vírgula)
         statement = """
                 INSERT INTO tel_usuário(CPF, telefone) VALUES \n
         """
@@ -30,7 +30,7 @@ class UsuárioDatabase:
 
         return self.db.execute_statement(statement)
     
-    def deleta_tel_usuário(self, cpf: str, tel_usuario: str): #aqui vc passa uma lista separada por vírgula
+    def deleta_tel_usuário(self, cpf: str, tel_usuario: str): # remove os telefones de um usuário (aqui vc passa uma lista separada por vírgula)
         tel_list_limpa = [tel.strip() for tel in tel_usuario.split(',') if tel.strip()] #para limpar a lista e não quebrar a consulta
         if not tel_list_limpa:
             return
@@ -44,7 +44,7 @@ class UsuárioDatabase:
 
         return self.db.execute_statement(statement)
     
-    def deleta_usuário(self, cpf: str):
+    def deleta_usuário(self, cpf: str): #deleta um usuário
         statement = f"""
             DELETE FROM usuário
             WHERE CPF = '{cpf}'; \n

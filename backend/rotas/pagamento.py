@@ -5,7 +5,7 @@ from serviços.pagamento import PagamentoDatabase
 pagamento_blueprint = Blueprint("pagamento", __name__)
 
 @pagamento_blueprint.route("/pagamento/cadastro", methods=["POST"])
-def cadastra_pagamento():
+def cadastra_pagamento(): #insere um pagamento referente a um contrato
     json = request.get_json()
     código_c = json.get("código_contrato")
     n_pagamento = json.get("n_pagamento")
@@ -43,7 +43,7 @@ def cadastra_pagamento():
     return jsonify("Pagamento inserido corretamente."), 200
 
 @pagamento_blueprint.route("/pagamento/status", methods=["GET"])
-def verifica_status_pagamento():
+def verifica_status_pagamento(): #pega o status de um pagamento (se tiver passado a data de vencimento já muda para atrasado)
     código_c = request.args.get("código_contrato", "")
     n_pagamento = request.args.get("n_pagamento", "")
 
@@ -61,7 +61,7 @@ def verifica_status_pagamento():
     return jsonify(status), 200
 
 @pagamento_blueprint.route("/pagamento/atualiza_status", methods=["PUT"])
-def atualiza_status_pagamento():
+def atualiza_status_pagamento():  #muda o status de um pagamento de um contrato
     json = request.get_json()
     código_c = json.get("código_contrato")
     n_pagamento = json.get("n_pagamento")
