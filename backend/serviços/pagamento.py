@@ -53,3 +53,16 @@ class PagamentoDatabase:
         """
 
         return self.db.execute_select_all(statement)
+
+    def get_extrato_pagamento_adquirente(self,CPF_adq:str): #obtem o extrato financeiro por adquirente
+        statement=f"""
+        SELECT p.código_c, p.n_pagamento, p.status, p.valor, i.logradouro, i.número, p.data_vencimento, p.data_pagamento
+        FROM pagamento p
+        JOIN contrato c ON p.código_c = c.código
+        JOIN imóvel i ON c.matrícula_imóvel = i.matrícula
+        JOIN assina a ON c.código = a.código_c
+        WHERE a.CPF_adq = '{CPF_adq}'
+        ORDER BY p.data_vencimento DESC;
+        """
+
+        return self.db.execute_select_all(statement)

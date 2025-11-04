@@ -94,6 +94,13 @@ def deleta_usuário(): #deleta um usuário
 @usuário_blueprint.route("/usuário/perfis-imóveis", methods=["GET"])
 def get_perfil_imóvel_adquirente():  #obtém o perfil de imóveis de um adquirente
     cpf = request.args.get("cpf", "")
-    
+
     return jsonify(UsuárioDatabase().get_perfil_imóvel_adquirente(
         cpf)),200
+
+@usuário_blueprint.route("/usuário/imóveis-proprietário", methods=["GET"])
+def get_info_imóvel_proprietário(): #obtém os imóveis de um proprietário, fornecendo status sobre eles
+    CPF_prop=request.args.get("cpf_proprietário", "")
+
+    return jsonify(UsuárioDatabase().get_info_imóvel_proprietário(
+        CPF_prop)),200

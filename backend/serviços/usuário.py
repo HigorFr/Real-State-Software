@@ -1,5 +1,6 @@
+from serviços.contrato import ContratoDatabase
 from serviços.database.conector import DatabaseManager
-from datetime import date
+from datetime import date, datetime
 
 class UsuárioDatabase:
     def __init__(self, db_provider=DatabaseManager()) -> None:
@@ -63,3 +64,50 @@ class UsuárioDatabase:
         ORDER BY u.prenome, total_de_contratos DESC;
         """
         return self.db.execute_select_all(statement)
+
+    def get_info_imóvel_proprietário(self, CPF_prop:str): #obtém os imóveis de um proprietário, fornecendo status sobre eles
+        statement=f"""
+        SELECT i.matrícula, i.logradouro, i.número, c.código, c.status, c.valor, c.data_fim
+        FROM imóvel i
+        LEFT JOIN contrato c ON i.matrícula = c.matrícula_imóvel
+        WHERE i.CPF_prop = '{CPF_prop}'
+        """
+        lista_imoveis = self.db.execute_select_all(statement)
+        
+        if not lista_imoveis:
+            return []
+        
+        resposta= []
+        hoje = datetime.now().date()
+        contrato_db = ContratoDatabase()
+
+        for imovel in lista_imoveis:
+            
+            status_banco = imovel['status']
+            data_fim = imovel['data_fim']
+            codigo_contrato = imovel['código']
+            
+            situacao_final = ""
+
+            if status_banco == 'Ativo' and (data_fim < hoje):
+                contrato_db.altera_status_contrato(codigo_contrato, 'Finalizado')
+                situacao_final = "Disponível"
+            
+            elif status_banco == 'Ativo':
+                situacao_final = "Alugado"
+            
+            elif status_banco is None or status_banco == 'Finalizado' or status_banco == 'Cancelado':
+                situacao_final = "Disponível"
+            
+            else: 
+                situacao_final = status_banco
+            
+            resposta.append({
+                "matrícula": imovel['matrícula'],
+                "logradouro": imovel['logradouro'],
+                "número": imovel['número'],
+                "situacao_atual": situacao_final,
+                "codigo_contrato_recente": codigo_contrato
+            })
+            
+        return resposta
