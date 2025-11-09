@@ -148,23 +148,23 @@ class ImóvelDatabase:
     
     def get_status_imovel(self, matricula: str): #obtém os status de um imóvel (se a data de fim de um contrato tiver passado, altera o status do contrato para finalizado e o status do imóvel para disponível)
         statement = f"""
-            SELECT c.codigo, c.status, c.data_fim FROM imovel i LEFT JOIN contrato c ON i.matricula = c.matricula_imovel WHERE i.matricula='{matricula}' ORDER BY c.código DESC; \n
+            SELECT c.codigo, c.status, c.data_fim FROM imovel i LEFT JOIN contrato c ON i.matricula = c.matricula_imovel WHERE i.matricula='{matricula}' ORDER BY c.codigo DESC; \n
         """
         
         resultado_lista = self.db.execute_select_all(statement)
         if not resultado_lista:
-            return "Matrícula Inválida"
+            return "Matricula Invalida"
         
         primeira_linha_dict = resultado_lista[0]
         status_do_banco = primeira_linha_dict['status']
         data_fim_do_banco = primeira_linha_dict['data_fim']
 
         if status_do_banco is None or status_do_banco=='Finalizado' or status_do_banco == 'Cancelado':
-            return "Disponível"
+            return "Disponivel"
         elif status_do_banco == 'Ativo':
             if data_fim_do_banco<=datetime.now().date():
                 ContratoDatabase().altera_status_contrato(primeira_linha_dict['codigo'], 'Finalizado')
-                return "Disponível"
+                return "Disponivel"
             return "Alugado"
         else:
             return status_do_banco
@@ -208,15 +208,15 @@ class ImóvelDatabase:
     
     def altera_proprietario_imóvel(self, matricula:str, cpf_prop: str): #altera o proprietário de um imóvel
         statement = f"""
-            UPDATE imóvel
+            UPDATE imovel
             SET CPF_prop = '{cpf_prop}'
-            WHERE matrícula = '{matricula}'; \n
+            WHERE matricula = '{matricula}'; \n
         """
         return self.db.execute_statement(statement)
     
     def adiciona_comodidades_imóvel(self, matricula:str, comodidades: str): #adiciona comodidades a um imóvel
         statement = """
-                INSERT INTO comodidades_imóvel(matrícula, comodidade) VALUES \n
+                INSERT INTO comodidades_imovel(matricula, comodidade) VALUES \n
         """
 
         comodidade_list = comodidades.split(",")

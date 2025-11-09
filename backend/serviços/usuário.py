@@ -109,7 +109,7 @@ class UsuárioDatabase:
     def get_perfil_imóvel_adquirente(self, cpf:str): #obtém o perfil de imóveis de um adquirente
         statement=f"""
         SELECT u.prenome, u.sobrenome, i.tipo AS tipo_de_imovel, i.finalidade, c.tipo AS tipo_de_contrato, COUNT(*) AS total_de_contratos
-        FROM usuário u
+        FROM usuario u
         JOIN assina a ON u.CPF = a.CPF_adq
         JOIN contrato c ON a.codigo_c = c.codigo
         JOIN imovel i ON c.matricula_imovel = i.matricula

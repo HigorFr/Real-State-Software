@@ -51,7 +51,7 @@ class PagamentoDatabase:
         SELECT  p.codigo_c, p.n_pagamento, p.status, p.valor, p.data_vencimento, p.data_pagamento
         FROM pagamento p
         JOIN contrato c ON p.codigo_c = c.codigo
-        WHERE c.matrícula_imóvel = '{matricula_imovel}'
+        WHERE c.matricula_imovel = '{matricula_imovel}'
         ORDER BY p.data_vencimento DESC;
         """
 

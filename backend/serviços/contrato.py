@@ -68,7 +68,7 @@ class ContratoDatabase:
         statement=f""" 
         SELECT c.codigo,c.status, c.data_inicio, c.data_fim, c.valor, i.matricula, i.logradouro, i.numero
         FROM contrato c
-        JOIN imovel i ON c.matricula_imóvel = i.matricula
+        JOIN imovel i ON c.matricula_imovel = i.matricula
         WHERE c.tipo='Aluguel' AND c.status='Ativo';
         """
         return self.db.execute_select_all(statement)
