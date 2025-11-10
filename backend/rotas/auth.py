@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from serviços.auth import AuthDatabase
-from main import app 
+
 
 auth_blueprint = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -20,7 +20,7 @@ def login():
         return jsonify({"error": "Credenciais inválidas"}), 401
 
     try:
-        secret_key = app.config['SECRET_KEY']
+        secret_key = current_app.config['SECRET_KEY']
         access_token, refresh_token = auth_service.criar_tokens(
             cpf=usuario['cpf'],
             secret_key=secret_key
@@ -48,7 +48,7 @@ def refresh_token():
         return jsonify({"error": "Refresh token ausente"}), 401
 
     auth_service = AuthDatabase()
-    secret_key = app.config['SECRET_KEY']
+    secret_key = current_app.config['SECRET_KEY']
 
     novo_par = auth_service.renovar_tokens(token, secret_key)
 

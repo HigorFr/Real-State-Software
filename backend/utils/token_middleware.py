@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import request, jsonify
+from flask import request, jsonify, current_app 
 import jwt
 
 #decorator para rotas que exigem token de autenticação
@@ -7,8 +7,6 @@ import jwt
 def token_obrigatorio(f):
     @wraps(f)
     def decorator(*args, **kwargs):
-        #importa app aqui para evitar importação circular
-        from main import app 
         
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith("Bearer "):
@@ -16,7 +14,7 @@ def token_obrigatorio(f):
 
         token = auth_header.split(" ")[1]
         try:
-            payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
             
             if payload["type"] != "access":
                 return jsonify({"error": "Token inválido (não é de acesso)"}), 401 
