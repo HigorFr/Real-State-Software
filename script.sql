@@ -162,25 +162,25 @@ CREATE TABLE assina
 
 -- Preenchendo tabelas
 INSERT INTO usuario(CPF, prenome, sobrenome, data_nasc,email) VALUES
-('12345678901', 'Ana', 'Silva', '1990-05-15', 'ana_s@mail.com'),
-('98765432109', 'Bruno', 'Costa', '1985-11-01', 'bruno_c@mail.com'),
-('31750890034', 'Samuel', 'Cavalcanti', '1991-04-16','samuel_c@mail.com'),
-('55566677788', 'Daniel', 'Fernandes', '1977-07-22', 'daniel_f@mail.com'),
-('10230450611', 'Fátima', 'Souza', '1965-04-12', 'fatima_s@mail.com'),
-('20540670822', 'Gabriel', 'Lima', '1998-02-25', 'gabriel_l@mail.com'),
-('30750890033', 'Helena', 'Ribeiro', '1982-09-08', 'helena_r@mail.com'),
-('80700890088', 'Marcelo', 'Gomes', '1979-10-27', 'marcelo_g@mail.com'),
-('40960010244', 'Isabel', 'Almeida', '2000-12-01', 'isabel_a@mail.com'),
-('50170230455', 'Júlia', 'Monteiro', '1993-07-18', 'julia_m@mail.com'),
-('60380450666', 'Lucas', 'Nogueira', '1988-11-14', 'lucas_n@mail.com'),
-('70590670877', 'Manuela', 'Barros', '2002-06-03', 'manuela_b@mail.com'),
-('52170230456', 'Tiago', 'Ferreira', '1975-12-11', 'tiago_f@mail.com'),
-('90910010299', 'Paula', 'Mendes', '1995-08-19', 'paula_m@mail.com'),
-('01120230400', 'Pedro', 'Henrique', '2005-01-05', 'pedro_h@mail.com'),
-('11330450612', 'Diego', 'Moreira', '1960-03-30', 'diego_m@mail.com'),
-('21540670823', 'Raquel', 'Freitas', '1987-05-21', 'raquel_f@mail.com'),
-('41960010245', 'Tatiana', 'Pinheiro', '2003-08-07', 'tatiana_p@mail.com'),
-('11122233344', 'Carla', 'Dias', '2001-01-30', 'carla_d@mail.com');
+('12345678901', 'Ana', 'Silva', '1990-05-15', 'ana_s@gmail.com'),
+('98765432109', 'Bruno', 'Costa', '1985-11-01', 'bruno_c@gmail.com'),
+('31750890034', 'Samuel', 'Cavalcanti', '1991-04-16','samuel_c@gmail.com'),
+('55566677788', 'Daniel', 'Fernandes', '1977-07-22', 'daniel_f@gmail.com'),
+('10230450611', 'Fátima', 'Souza', '1965-04-12', 'fatima_s@gmail.com'),
+('20540670822', 'Gabriel', 'Lima', '1998-02-25', 'gabriel_l@gmail.com'),
+('30750890033', 'Helena', 'Ribeiro', '1982-09-08', 'helena_r@gmail.com'),
+('80700890088', 'Marcelo', 'Gomes', '1979-10-27', 'marcelo_g@gmail.com'),
+('40960010244', 'Isabel', 'Almeida', '2000-12-01', 'isabel_a@gmail.com'),
+('50170230455', 'Júlia', 'Monteiro', '1993-07-18', 'julia_m@gmail.com'),
+('60380450666', 'Lucas', 'Nogueira', '1988-11-14', 'lucas_n@gmail.com'),
+('70590670877', 'Manuela', 'Barros', '2002-06-03', 'manuela_b@gmail.com'),
+('52170230456', 'Tiago', 'Ferreira', '1975-12-11', 'tiago_f@gmail.com'),
+('90910010299', 'Paula', 'Mendes', '1995-08-19', 'paula_m@gmail.com'),
+('01120230400', 'Pedro', 'Henrique', '2005-01-05', 'pedro_h@mgail.com'),
+('11330450612', 'Diego', 'Moreira', '1960-03-30', 'diego_m@gmail.com'),
+('21540670823', 'Raquel', 'Freitas', '1987-05-21', 'raquel_f@gmail.com'),
+('41960010245', 'Tatiana', 'Pinheiro', '2003-08-07', 'tatiana_p@gmail.com'),
+('11122233344', 'Carla', 'Dias', '2001-01-30', 'carla_d@gmail.com');
 
 INSERT INTO proprietario(CPF) VALUES
 ('12345678901'),
@@ -339,4 +339,3 @@ INSERT INTO assina(CPF_adq, codigo_c) VALUES
 ('01120230400', 4),
 ('52170230456', 5),
 ('20540670822', 6);
-
