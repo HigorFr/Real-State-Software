@@ -2,12 +2,12 @@ from functools import wraps
 from flask import request, jsonify
 import jwt
 
-# A CHAVE SECRETA - Puxaremos do app.config
+#decorator para rotas que exigem token de autenticação
 
 def token_obrigatorio(f):
     @wraps(f)
     def decorator(*args, **kwargs):
-        # Precisamos do 'app' atual para pegar o .config
+        #importa app aqui para evitar importação circular
         from main import app 
         
         auth_header = request.headers.get('Authorization')
@@ -21,7 +21,7 @@ def token_obrigatorio(f):
             if payload["type"] != "access":
                 return jsonify({"error": "Token inválido (não é de acesso)"}), 401
             
-            # Disponibiliza o CPF para a rota
+            #anexa o CPF do usuário à requisição para uso posterior
             request.cpf_usuario = payload["cpf"] 
 
         except jwt.ExpiredSignatureError:
@@ -30,4 +30,4 @@ def token_obrigatorio(f):
             return jsonify({"error": "Token inválido"}), 401
 
         return f(*args, **kwargs)
-    return decorator
+    return decorator 

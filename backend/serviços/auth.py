@@ -39,7 +39,7 @@ class AuthDatabase:
         try:
             usuario = self.db.execute_select_one(statement_usuario, (cpf,))
             usuario['cpf'] = cpf 
-            # (Você pode adicionar lógicas para buscar telefones, creci, etc. aqui)
+            #podemos buscar aqui também outras informações do usuário, se necessário
 
             return usuario
 
