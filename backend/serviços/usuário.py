@@ -41,6 +41,19 @@ class UsuárioDatabase:
         
         return self.db.execute_statement(statement)
     
+    def insere_login(self, cpf: str, hash_senha: str):
+        """ Insere a senha com hash na tabela login (de forma segura). """
+        statement = """
+            INSERT INTO login (CPF, senha)
+            VALUES (%s, %s);
+        """
+        try:
+            self.db.execute_statement(statement, (cpf, hash_senha))
+            return True
+        except Exception as e:
+            print(f"Erro ao inserir login: {e}")
+            raise e
+    
     def insere_lista_tel_usuário(self, cpf: str, tel_usuario: str): #insere os telefones de um usuário (aqui vc passa uma lista separada por vírgula)
         statement = """
                 INSERT INTO tel_usuario(CPF, telefone) VALUES \n

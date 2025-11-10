@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, request
 from serviços.usuário import UsuárioDatabase
+from utils.hash import gerar_hash_senha 
 
 usuário_blueprint = Blueprint("usuario", __name__)
 
@@ -12,6 +13,7 @@ def cria_usuário_completo(): #cadastra um usuário, seus eventuais tipos e seus
     sobrenome = json.get("sobrenome")
     data_nasc_str = json.get("data_nasc")
     email = json.get("email")
+    senha = json.get("senha") 
     tel_usuario = json.get("telefones") #aqui vc passa uma lista separada por vírgula
     proprietario = json.get("proprietario")  #opcional, só se for proprietário
     adquirente = json.get("adquirente")  #opcional, só se for adquirente
@@ -21,8 +23,8 @@ def cria_usuário_completo(): #cadastra um usuário, seus eventuais tipos e seus
     creci = json.get("creci")  #opcional, só se for corretor
     regiao_atuação = json.get("regiao_atuacao")  #opcional, só se for corretor
 
-    if not all([cpf, prenome, sobrenome, data_nasc_str,email,tel_usuario]):
-        return jsonify("Os campos (cpf, prenome, sobrenome, data_nasc,email, telefones) sao obrigatorios"), 400
+    if not all([cpf, prenome, sobrenome, data_nasc_str, email, senha, tel_usuario]):
+        return jsonify("Todos os campos (cpf, prenome, sobrenome, data_nasc, email, senha, telefones) sao obrigatorios"), 400
     
     if proprietario is False and adquirente is False and corretor is False:
         return jsonify("E necessario selecionar ao menos um tipo de usuario (proprietario, adquirente ou corretor)."), 400
@@ -44,6 +46,13 @@ def cria_usuário_completo(): #cadastra um usuário, seus eventuais tipos e seus
         )
     except Exception as e_usuário:
         return jsonify("Nao foi possivel criar usuario."), 400
+    
+    try:
+        hash_da_senha = gerar_hash_senha(senha)  #gera o hash da senha
+        db_service.insere_login(cpf, hash_da_senha) #salva o hash no banco de dados
+    except Exception as e_login:
+        db_service.deleta_usuário(cpf) #se der erro ao criar o login, desfaz o cadastro do usuário
+        return jsonify(f"Nao foi possivel criar o login (verifique se o 'ALTER TABLE' foi feito). Cadastro desfeito. Erro: {e_login}"), 400
 
     try:
         db_service.insere_lista_tel_usuário(
