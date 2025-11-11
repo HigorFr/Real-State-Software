@@ -72,8 +72,9 @@ def cadastrar_imóvel(): #cadastra um novo imóvel
     mobiliado = json.get("mobiliado")
     valor_venal = json.get("valor_venal")
     matrícula = json.get("matricula")
+    bairro = json.get("bairro")
 
-    if not all([cpf_prop, logradouro, número, CEP, cidade, matrícula]):
+    if not all([cpf_prop, logradouro, número, CEP, cidade, bairro,matrícula]):
         return jsonify("Ha campos obrigatorios nao preenchidos"), 400
 
     registro = ImóvelDatabase().cadastra_imóvel(
@@ -91,7 +92,8 @@ def cadastrar_imóvel(): #cadastra um novo imóvel
         número, 
         CEP,
         cidade, 
-        cpf_prop
+        cpf_prop,
+        bairro
     )
 
     if not registro:

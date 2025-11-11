@@ -137,12 +137,12 @@ class ImóvelDatabase:
             return status_do_banco
         
         
-    def cadastra_imóvel(self, matricula:str, n_quartos: int, valor_venal: float, metragem: float, tipo: str, mobiliado: bool, possui_garagem: bool, n_reformas: int, finalidade: str, logradouro: str, complemento:str, numero: str, CEP: str, cidade: str, cpf_prop: str): #cadastra um novo imóvel
+    def cadastra_imóvel(self, matricula:str, n_quartos: int, valor_venal: float, metragem: float, tipo: str, mobiliado: bool, possui_garagem: bool, n_reformas: int, finalidade: str, logradouro: str, complemento:str, numero: str, CEP: str, cidade: str, cpf_prop: str, bairro:str): #cadastra um novo imóvel
         statement = """
-            INSERT INTO imovel (matricula, n_quartos, valor_venal, metragem, tipo, mobiliado, possui_garagem, n_reformas, finalidade, logradouro, complemento, numero, CEP, cidade, CPF_prop)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            INSERT INTO imovel (matricula, n_quartos, valor_venal, metragem, tipo, mobiliado, possui_garagem, n_reformas, finalidade, logradouro, complemento, numero, CEP, cidade, CPF_prop, bairro)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """
-        params = (matricula, n_quartos, valor_venal, metragem, tipo, mobiliado, possui_garagem, n_reformas, finalidade, logradouro, complemento, numero, CEP, cidade, cpf_prop)
+        params = (matricula, n_quartos, valor_venal, metragem, tipo, mobiliado, possui_garagem, n_reformas, finalidade, logradouro, complemento, numero, CEP, cidade, cpf_prop, bairro)
         
         return self.db.execute_statement(statement, params)
     
@@ -234,5 +234,4 @@ class ImóvelDatabase:
             WHERE matricula = %s;
         """
         return self.db.execute_statement(statement, (matricula,))
-    
     
