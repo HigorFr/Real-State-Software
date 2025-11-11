@@ -9,7 +9,7 @@ class ImóvelDatabase:
         else:
             self.db = db_provider
 
-    def filtra_imoveis(self, valor_venal_min: float ,valor_venal_max: float, logradouro:str, numero:str, CEP: str, cidade: str, metragem_min: float, metragem_max:float, finalidade:str, tipo: str, n_quartos: int, n_reformas: int, possui_garagem: bool, mobiliado: bool, CPF_prop:str, matricula:str, comodidade:str): #filtra imóveis de acordo com uma série de características (vc ecolhe quantas e quais)
+    def filtra_imoveis(self, valor_venal_min: float ,valor_venal_max: float, logradouro:str, numero:str, CEP: str, cidade: str, metragem_min: float, metragem_max:float, finalidade:str, tipo: str, n_quartos: int, n_reformas: int, possui_garagem: bool, mobiliado: bool, CPF_prop:str, matricula:str, bairro:str,comodidade:str): #filtra imóveis de acordo com uma série de características (vc ecolhe quantas e quais)
         query = """
                 SELECT DISTINCT i.* FROM imovel i
                 LEFT JOIN comodidades_imovel c ON i.matricula = c.matricula
@@ -82,6 +82,10 @@ class ImóvelDatabase:
         if matricula:
             where_conditions.append("i.matricula = %s")
             params.append(matricula)
+
+        if bairro:
+            where_conditions.append("i.bairro = %s")
+            params.append(bairro)
 
         if comodidade:
             #filtra por imóveis que tenham todas as comodidades listadas
@@ -230,3 +234,5 @@ class ImóvelDatabase:
             WHERE matricula = %s;
         """
         return self.db.execute_statement(statement, (matricula,))
+    
+    

@@ -23,6 +23,7 @@ def filtra_imóveis(): #filtra imóveis de acordo com uma série de característ
     cpf_prop= request.args.get("cpf", "")
     matrícula= request.args.get("matricula", "")
     comodidade= request.args.get("comodidade", "")
+    bairro= request.args.get("bairro", "")
 
     return jsonify(ImóvelDatabase().filtra_imoveis(
         valor_venal_min,
@@ -41,6 +42,7 @@ def filtra_imóveis(): #filtra imóveis de acordo com uma série de característ
         mobiliado,
         cpf_prop,
         matrícula,
+        bairro,
         comodidade
     )), 200
 
