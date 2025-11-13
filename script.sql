@@ -747,29 +747,3 @@ INSERT INTO assina(CPF_adq, codigo_c) VALUES
 ('50170230455', 28), 
 ('12345678901', 29), 
 ('05350670056', 30); 
-
-SELECT COUNT(i.matricula)
-FROM imovel i
-LEFT JOIN comodidades_imovel ci ON i.matricula = ci.matricula
-WHERE ci.comodidade IS NULL;
-
-SELECT COUNT(*)
-FROM imovel;
-
-
-SELECT
-    c.codigo AS ID_Contrato,
-    i.descricao AS Imovel,
-    i.bairro AS Bairro_Imovel,
-    corr.regiao_atuacao AS Regiao_Corretor_Contrato,
-    u.prenome || ' ' || u.sobrenome AS Nome_Corretor
-FROM
-    contrato c
-JOIN
-    imovel i ON c.matricula_imovel = i.matricula
-JOIN
-    corretor corr ON c.CPF_corretor = corr.CPF
-JOIN
-    usuario u ON corr.CPF = u.CPF
-WHERE
-    i.bairro <> corr.regiao_atuacao;
