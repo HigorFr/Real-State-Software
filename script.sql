@@ -6,6 +6,7 @@ CREATE TABLE usuario
 	sobrenome varchar(20) NOT NULL,
 	data_nasc date NOT NULL CHECK (EXTRACT(YEAR FROM AGE(CURRENT_DATE, data_nasc)) >= 18),
 	email varchar(50) NOT NULL,
+	profile_image_url varchar(255),
 	CONSTRAINT UPK
 		PRIMARY KEY(CPF)
 );
@@ -13,7 +14,7 @@ CREATE TABLE usuario
 CREATE TABLE login
 (
 	CPF char(11) NOT NULL,
-	senha varchar(64) NOT NULL,
+	senha varchar(255) NOT NULL,
 	CONSTRAINT LPK
 		PRIMARY KEY(CPF,senha),
 	CONSTRAINT LFK
@@ -55,6 +56,19 @@ CREATE TABLE corretor
 		ON DELETE cascade ON UPDATE cascade,
 	CONSTRAINT unique_corr
 		UNIQUE(creci_codigo)
+);
+
+CREATE TABLE otp_codes
+(
+    CPF CHAR(11) NOT NULL UNIQUE, -- Apenas um OTP ativo por CPF
+    otp_code VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL, -- Hora de expiração
+
+    CONSTRAINT OTP_PK PRIMARY KEY(CPF),
+    CONSTRAINT OTP_CPF_FK
+        FOREIGN KEY(CPF)
+        REFERENCES usuario(CPF)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE tel_usuario

@@ -1,6 +1,7 @@
 from serviços.database.conector import DatabaseManager
 from utils.hash import verificar_hash_senha 
 import datetime
+from datetime import timezone
 import jwt
 
 class AuthDatabase:
@@ -108,3 +109,79 @@ class AuthDatabase:
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as e:
             print(f"Erro ao renovar token: {e}")
             return None
+
+    def get_user_email(self, cpf: str):
+        """Busca o e-mail do usuário no banco (usado pelo EmailService)."""
+        statement = "SELECT email FROM usuario WHERE CPF = %s"
+        resultado = self.db.execute_select_one(statement, (cpf,))
+        return resultado if resultado else None
+
+    def save_otp_for_cpf(self, cpf: str, otp_code: str):
+        """
+        Salva o código OTP no banco com um tempo de expiração (10 minutos).
+        Assume que existe uma tabela 'otp_codes' com colunas CPF, otp_code, expires_at.
+        """
+        expires_at = datetime.datetime.now(timezone.utc) + datetime.timedelta(minutes=10)        
+        
+        statement = """
+            INSERT INTO otp_codes (CPF, otp_code, expires_at)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (CPF) DO UPDATE
+            SET otp_code = EXCLUDED.otp_code, expires_at = EXCLUDED.expires_at;
+        """
+        params = (cpf, otp_code, expires_at)
+        
+        try:
+            self.db.execute_statement(statement, params)
+            return True
+        except Exception as e:
+            print(f"Erro ao salvar OTP: {e}")
+            return False
+
+    def validate_otp_code(self, cpf: str, otp_code: str):
+        """
+        Verifica se o código OTP é válido e não expirou.
+        Se for válido, ele o invalida (deleta) para evitar reutilização.
+        """
+        now = datetime.datetime.now(timezone.utc)
+        
+        statement_select = """
+            SELECT otp_code, expires_at 
+            FROM otp_codes
+            WHERE CPF = %s;
+        """
+        resultado = self.db.execute_select_one(statement_select, (cpf,))
+        
+        if not resultado:
+            return False
+            
+        is_valid = (resultado['otp_code'] == otp_code and resultado['expires_at'] > now)
+        
+        if is_valid:
+            return True
+        else:
+            if resultado['expires_at'] <= now: 
+                statement_delete = "DELETE FROM otp_codes WHERE CPF = %s;"
+                self.db.execute_statement(statement_delete, (cpf,))                 
+            return False
+
+    def update_user_password(self, cpf: str, new_password_hash: str):
+        """
+        Atualiza o hash da senha na tabela 'login' e invalida quaisquer OTPs pendentes.
+        """
+        try:
+            statement_update = """
+                UPDATE login
+                SET senha = %s
+                WHERE CPF = %s;
+            """
+            self.db.execute_statement(statement_update, (new_password_hash, cpf))
+            
+            statement_cleanup = "DELETE FROM otp_codes WHERE CPF = %s;"
+            self.db.execute_statement(statement_cleanup, (cpf,))
+            
+            return True
+        except Exception as e:
+            print(f"Erro ao atualizar senha do usuário: {e}")
+            return False
+    
