@@ -108,7 +108,7 @@ FROM imovel i
 LEFT JOIN contrato c ON i.matricula = c.matricula_imovel
 WHERE i.CPF_prop = '99988877766';
 
--- 12. Filtra imóveis com base nos parâmetros fornecidos, permitindo uma filtragem flexível.
+-- 12. Filtra imóveis com base nos parâmetros fornecidos, permitindo uma filtragem flexível. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 	-- Cenário A: Filtro Simples (Sem Comodidades). Busca imóveis que correspondam a um ou mais critérios simples (ex: por bairro, tipo, faixa de valor). A cláusula WHERE é montada dinamicamente.
 
@@ -135,7 +135,7 @@ WHERE i.bairro = 'Tatuapé' AND c.comodidade = ANY(ARRAY['Elevador', 'Academia']
 GROUP BY i.matricula 
 HAVING COUNT(DISTINCT c.comodidade) = 2;
 
--- 13. Obtém os status de um imóvel (o código em python confere se a data de fim de um contrato já passou. Se tiver, altera o status do contrato para finalizado e o status do imóvel para disponível)
+-- 13. Obtém os status de um imóvel (o código em python confere se a data de fim de um contrato já passou. Se tiver, altera o status do contrato para finalizado e o status do imóvel para disponível). A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 /*SELECT c.codigo, c.status, c.data_fim FROM imovel i 
 LEFT JOIN contrato c ON i.matricula = c.matricula_imovel 
@@ -147,3 +147,72 @@ LEFT JOIN contrato c ON i.matricula = c.matricula_imovel
 WHERE i.matricula = '1001001001001002' 
 ORDER BY c.codigo DESC;
 
+-- 14. Atualiza os dados cadastrais básicos (nome, email, imagem de perfil) de um usuário. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*UPDATE usuario
+SET prenome = %s, sobrenome = %s, email = %s, profile_image_url = %s
+WHERE CPF = %s;*/
+
+UPDATE usuario
+SET prenome = 'Ana Maria', 
+    sobrenome = 'Silva Souza', 
+    email = 'ana.nova@email.com', 
+    profile_image_url = 'https://exemplo.com/fotos/ana_silva_v2.jpg'
+WHERE CPF = '12345678901';
+
+-- 15. Cadastra um novo imóvel no sistema, associando-o a um proprietário existente. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*INSERT INTO imovel (matricula, n_quartos, valor_venal, metragem, tipo, mobiliado, possui_garagem, n_reformas, finalidade, logradouro, complemento, numero, CEP, cidade, CPF_prop, descricao, bairro)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);*/
+
+INSERT INTO imovel (matricula, n_quartos, valor_venal, metragem, tipo, mobiliado, possui_garagem, n_reformas, finalidade, logradouro, complemento, numero, CEP, cidade, CPF_prop, descricao, bairro)
+VALUES ('1001001001001011', 3, 950000.00, 180.0, 'Casa', false, true, 1, 'Residencial', 
+'Rua Maria Amália Lopes de Azevedo', NULL, '3000', '02350001', 'São Paulo', '60590810211',
+'Casa espaçosa no Tremembé, 3 quartos, perto da serra.','Tremembé');
+
+-- 16. Atualiza características de um imóvel. A consulta UPDATE é construída dinamicamente para alterar apenas os campos que foram fornecidos (não nulos). A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+	-- EXEMPLO: Se o usuário quiser alterar apenas o valor_venal e o n_reformas
+/*UPDATE imovel
+SET valor_venal = %s, n_reformas = %s
+WHERE matricula = %s;*/
+
+UPDATE imovel
+SET valor_venal = 1050000.00, n_reformas = 2
+WHERE matricula = '1001001001001011';
+
+-- 17. Altera o proprietário associado a um imóvel específico. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*UPDATE imovel
+SET CPF_prop = %s
+WHERE matricula = %s;*/
+
+UPDATE imovel
+SET CPF_prop = '98765432109'
+WHERE matricula = '1001001001001011';
+
+-- 18. Adiciona uma ou mais comodidades a um imóvel. A consulta é construída dinamicamente para inserir múltiplas linhas de uma vez. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+	
+	--Exemplo para 2 itens
+/*INSERT INTO comodidades_imovel(matricula, comodidade) 
+VALUES (%s, %s), (%s, %s);*/
+
+INSERT INTO comodidades_imovel(matricula, comodidade) 
+VALUES ('1001001001001011', 'Churrasqueira'), 
+       ('1001001001001011', 'Quintal');
+
+-- 19. Remove uma ou mais comodidades de um imóvel específico. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*DELETE FROM comodidades_imovel
+WHERE matricula = %s AND comodidade = ANY(%s);*/
+
+DELETE FROM comodidades_imovel
+WHERE matricula = '1001001001001011' AND comodidade = ANY(ARRAY['Quintal']);
+
+-- 20. Deleta um imóvel do sistema. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*DELETE FROM imovel
+WHERE matricula = %s;*/
+
+DELETE FROM imovel
+WHERE matricula = '1001001001001011';

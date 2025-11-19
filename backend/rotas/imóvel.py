@@ -72,6 +72,7 @@ def cadastrar_imóvel(): #cadastra um novo imóvel
     mobiliado = json.get("mobiliado")
     valor_venal = json.get("valor_venal")
     matrícula = json.get("matricula")
+    descricao = json.get("descricao")
     bairro = json.get("bairro")
 
     if not all([cpf_prop, logradouro, número, CEP, cidade, bairro,matrícula]):
@@ -93,6 +94,7 @@ def cadastrar_imóvel(): #cadastra um novo imóvel
         CEP,
         cidade, 
         cpf_prop,
+        descricao,
         bairro
     )
 
@@ -114,6 +116,7 @@ def alterar_imóvel(): #altera alguma carcterística de um imóvel (as comodidad
     possui_garagem = json.get("possui_garagem")
     n_reformas = json.get("n_reformas")
     finalidade = json.get("finalidade")
+    descricao = json.get("descricao")
 
     if not matrícula:
         return jsonify("Matricula e um campo obrigatorio"), 400
@@ -128,6 +131,7 @@ def alterar_imóvel(): #altera alguma carcterística de um imóvel (as comodidad
         possui_garagem,
         n_reformas,
         finalidade,
+        descricao
     )
 
     if not registro:
