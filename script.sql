@@ -109,6 +109,17 @@ CREATE TABLE imovel
 ALTER TABLE imovel ADD COLUMN descricao varchar(250);
 ALTER TABLE imovel ADD COLUMN bairro varchar(50);
 
+CREATE TABLE imagem_imovel
+(
+	matricula char(16) NOT NULL,
+	imovel_image_url varchar(255) NOT NULL,
+	CONSTRAINT IIPK
+		PRIMARY KEY(matricula,imovel_image_url),
+	CONSTRAINT IIFK
+		FOREIGN KEY(matricula) REFERENCES imovel(matricula)
+		ON DELETE cascade ON UPDATE cascade
+);
+
 CREATE TABLE comodidades_imovel
 (
 	matricula char(16) NOT NULL,
