@@ -61,5 +61,5 @@ Thumbs.db
 # Logs
 *.log
 logs/
-static/
+backend/static/
 
