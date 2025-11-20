@@ -78,10 +78,10 @@ def cadastrar_imóvel(): #cadastra um novo imóvel
     descricao = json.get("descricao")
     bairro = json.get("bairro")
 
-    comodidades = json_data.get("comodidades")  # aqui você passa uma lista separada por vírgula
+    comodidades = json.get("comodidades")  # aqui você passa uma lista separada por vírgula
 
     if not all([cpf_prop, logradouro, número, CEP, cidade, bairro,matrícula]):
-        return jsonify("Ha campos obrigatorios nao preenchidos"), 400
+        return jsonify({"error": "Ha campos obrigatorios nao preenchidos"}), 400
 
     registro = ImóvelDatabase().cadastra_imóvel(
         matrícula,
@@ -104,16 +104,16 @@ def cadastrar_imóvel(): #cadastra um novo imóvel
     )
 
     if not registro:
-        return jsonify("Nao foi possivel cadastrar o imovel."), 400
+        return jsonify({"error": "Nao foi possivel cadastrar o imovel."}), 400
     
     if comodidades:
         sucesso_comodidades = ImóvelDatabase().adiciona_comodidades_imóvel(matrícula, comodidades)
         
         if not sucesso_comodidades:
             ImóvelDatabase().deleta_imóvel(matrícula)
-            return jsonify("Houve erro ao inserir as comodidades. Portanto, o cadastro do imovel foi desfeito"), 206
+            return jsonify({"error": "Houve erro ao inserir as comodidades. Cadastro desfeito"}), 206
 
-    return jsonify("Imovel e comodidades cadastrados com sucesso."), 200
+    return jsonify({"message": "Imovel e comodidades cadastrados com sucesso."}), 200
 
 # Configurações
 UPLOAD_FOLDER_IMOVEIS = os.path.join(os.getcwd(), 'static', 'uploads', 'imoveis')
