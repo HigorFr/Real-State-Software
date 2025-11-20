@@ -110,29 +110,40 @@ WHERE i.CPF_prop = '99988877766';
 
 -- 12. Filtra imóveis com base nos parâmetros fornecidos, permitindo uma filtragem flexível. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
-	-- Cenário A: Filtro Simples (Sem Comodidades). Busca imóveis que correspondam a um ou mais critérios simples (ex: por bairro, tipo, faixa de valor). A cláusula WHERE é montada dinamicamente.
+	-- Cenário A: Filtro Simples (Sem Comodidades). Busca imóveis que correspondam a um ou mais critérios simples (ex: por bairro, tipo, faixa de valor). A cláusula WHERE é montada dinamicamente. O GROUP BY é usado para agrupar as múltiplas imagens de cada imóvel.
 
-/*SELECT DISTINCT i.* FROM imovel i
+/*SELECT DISTINCT i.*, array_agg(DISTINCT img.imovel_image_url) AS imagens
+FROM imovel i
 LEFT JOIN comodidades_imovel c ON i.matricula = c.matricula
-WHERE i.tipo = %s AND i.bairro = %s AND i.valor_venal >= %s;*/
+LEFT JOIN imagem_imovel img ON i.matricula = img.matricula
+WHERE i.tipo = %s AND i.bairro = %s AND i.valor_venal >= %s
+GROUP BY i.matricula;*/
 
-SELECT DISTINCT i.* FROM imovel i
+SELECT i.*, array_agg(DISTINCT img.imovel_image_url) AS imagens
+FROM imovel i
 LEFT JOIN comodidades_imovel c ON i.matricula = c.matricula
+LEFT JOIN imagem_imovel img ON i.matricula = img.matricula
 WHERE i.tipo = 'Apartamento' 
   AND i.bairro = 'Tatuapé' 
-  AND i.valor_venal >= 800000;
+  AND i.valor_venal >= 800000
+GROUP BY i.matricula;
 
 	-- Cenário B: Filtro por Comodidades (Lógica Especial). Busca imóveis que possuam todas as comodidades que o usuário queira.
-/*SELECT DISTINCT i.* FROM imovel i
+
+/*SELECT i.*, array_agg(DISTINCT img.imovel_image_url) AS imagens
+FROM imovel i
 LEFT JOIN comodidades_imovel c ON i.matricula = c.matricula
+LEFT JOIN imagem_imovel img ON i.matricula = img.matricula
 WHERE i.bairro = %s AND c.comodidade = ANY(%s)
-GROUP BY i.matricula 
+GROUP BY i.matricula
 HAVING COUNT(DISTINCT c.comodidade) = %s;*/
 
-SELECT DISTINCT i.* FROM imovel i
+SELECT i.*, array_agg(DISTINCT img.imovel_image_url) AS imagens
+FROM imovel i
 LEFT JOIN comodidades_imovel c ON i.matricula = c.matricula
+LEFT JOIN imagem_imovel img ON i.matricula = img.matricula
 WHERE i.bairro = 'Tatuapé' AND c.comodidade = ANY(ARRAY['Elevador', 'Academia'])
-GROUP BY i.matricula 
+GROUP BY i.matricula
 HAVING COUNT(DISTINCT c.comodidade) = 2;
 
 -- 13. Obtém os status de um imóvel (o código em python confere se a data de fim de um contrato já passou. Se tiver, altera o status do contrato para finalizado e o status do imóvel para disponível). A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
@@ -216,3 +227,122 @@ WHERE matricula = %s;*/
 
 DELETE FROM imovel
 WHERE matricula = '1001001001001011';
+
+-- 21. Vincula uma URL de imagem a um imóvel específico. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*INSERT INTO imagem_imovel (matricula, imovel_image_url)
+VALUES (%s, %s);*/
+
+INSERT INTO imagem_imovel (matricula, imovel_image_url)
+VALUES ('1001001001001011', 'http://localhost:5000/static/uploads/imoveis/1001001001001011_0.jpg');
+
+-- 22. Remove o vinculo de uma imagem especifica com um imovel banco de dados. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*DELETE FROM imagem_imovel
+WHERE matricula = %s AND imovel_image_url = %s;*/
+
+DELETE FROM imagem_imovel
+WHERE matricula = '1001001001001011' 
+  AND imovel_image_url = 'http://localhost:5000/static/uploads/imoveis/1001001001001011_0.jpg';
+
+-- 23. Obtém contratos de aluguel ativos que estão perto de vencer (dentro de um intervalo de 30 dias a partir da data atual). A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*SELECT * FROM contrato
+WHERE tipo='Aluguel' AND status = 'Ativo' AND
+data_fim BETWEEN %s AND %s;*/
+
+SELECT * FROM contrato
+WHERE tipo='Aluguel' AND status = 'Ativo' AND
+data_fim BETWEEN '2025-11-19' AND '2025-12-19';
+
+-- 24. Insere um novo contrato (Venda ou Aluguel) no sistema, vinculando um imóvel a um proprietário e a um corretor responsável.
+
+/*INSERT INTO contrato (codigo, valor, status, data_inicio, data_fim, tipo, matricula_imovel, CPF_prop, CPF_corretor)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);*/
+
+INSERT INTO contrato (codigo, valor, status, data_inicio, data_fim, tipo, matricula_imovel, CPF_prop, CPF_corretor)
+VALUES (31, 2500.00, 'Ativo', '2025-12-01', '2027-12-01', 'Aluguel', '1001001001001011', '12345678901', '28780010489');
+
+-- 25. Registra a assinatura de um contrato por um adquirente, vinculando o CPF do cliente ao código do contrato
+
+/*INSERT INTO assina(CPF_adq, codigo_c) 
+VALUES (%s, %s);*/
+
+INSERT INTO assina(CPF_adq, codigo_c) 
+VALUES ('50170230455', 31);
+
+-- 26. Deleta um contrato do sistema.
+
+/* DELETE FROM contrato
+WHERE codigo = %s;*/
+
+DELETE FROM contrato
+WHERE codigo = 31;
+
+-- 27. Atualiza o status de um contrato existente
+
+/*UPDATE contrato
+SET status = %s
+WHERE codigo = %s;*/
+
+UPDATE contrato
+SET status = 'Finalizado'
+WHERE codigo = 4;
+
+-- 28. Obtém o histórico de períodos (data de início e fim) de todos os contratos de aluguel associados a um imóvel específico, ordenados do mais recente para o mais antigo.
+
+/*SELECT codigo, matricula_imovel, data_inicio, data_fim FROM contrato
+WHERE tipo='Aluguel' AND matricula_imovel=%s
+ORDER BY data_inicio DESC*/
+
+SELECT codigo, matricula_imovel, data_inicio, data_fim FROM contrato
+WHERE tipo='Aluguel' AND matricula_imovel='1001001001001007'
+ORDER BY data_inicio DESC;
+
+-- 29. Obtém todos os contratos de aluguel que estão com status 'Ativo', trazendo juntamente os dados básicos do imóvel (endereço).
+
+SELECT c.codigo,c.status, c.data_inicio, c.data_fim, c.valor, i.matricula, i.logradouro, i.numero
+        FROM contrato c
+        JOIN imovel i ON c.matricula_imovel = i.matricula
+        WHERE c.tipo='Aluguel' AND c.status='Ativo';
+
+-- 30. Obtém o histórico de valores negociados (seja de venda ou aluguel) de todos os contratos associados a um imóvel específico, ordenados do mais recente para o mais antigo.
+
+/*SELECT codigo, matricula_imovel, valor FROM contrato 
+WHERE matricula_imovel = %s 
+ORDER BY codigo DESC;*/
+
+SELECT codigo, matricula_imovel, valor FROM contrato 
+WHERE matricula_imovel = '1001001001001002' 
+ORDER BY codigo DESC;
+
+-- 31. Gera um relatório dos imóveis ordenados pelo número de vezes que foram alugados (contagem de contratos do tipo 'Aluguel'), do mais popular para o menos popular.
+
+SELECT i.matricula, i.logradouro, i.numero, 
+        COUNT(c.codigo) AS nr_de_vezes_alugado
+        FROM contrato c JOIN imovel i ON c.matricula_imovel = i.matricula
+        WHERE c.tipo='Aluguel'
+		GROUP BY i.matricula
+        ORDER BY nr_de_vezes_alugado DESC;
+
+-- 32. Devolve o histórico de proprietários e adquirentes (ou inquilinos) associados a um imóvel através de seus contratos. A consulta recupera o nome do proprietário no momento do contrato e, se houver, o nome da pessoa que assinou (comprou ou alugou).
+
+/*SELECT c.codigo, c.tipo, c.status, 
+       prop.prenome AS proprietario_nome, prop.sobrenome AS proprietario_sobrenome, 
+       adq.prenome AS adquirente_nome, adq.sobrenome AS adquirente_sobrenome
+FROM contrato c
+JOIN usuario prop ON c.CPF_prop = prop.CPF
+LEFT JOIN assina a ON c.codigo = a.codigo_c
+LEFT JOIN usuario adq ON a.CPF_adq = adq.CPF
+WHERE c.matricula_imovel = %s
+ORDER BY c.codigo DESC;*/
+
+SELECT c.codigo, c.tipo, c.status, 
+       prop.prenome AS proprietario_nome, prop.sobrenome AS proprietario_sobrenome, 
+       adq.prenome AS adquirente_nome, adq.sobrenome AS adquirente_sobrenome
+FROM contrato c
+JOIN usuario prop ON c.CPF_prop = prop.CPF
+LEFT JOIN assina a ON c.codigo = a.codigo_c
+LEFT JOIN usuario adq ON a.CPF_adq = adq.CPF
+WHERE c.matricula_imovel = '1001001001001001'
+ORDER BY c.codigo DESC;
