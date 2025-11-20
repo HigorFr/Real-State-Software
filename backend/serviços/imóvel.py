@@ -238,3 +238,17 @@ class ImóvelDatabase:
         """
         return self.db.execute_statement(statement, (matricula,))
     
+    def insere_imagem_imovel(self, matricula: str, url: str):
+        statement = """
+            INSERT INTO imagem_imovel (matricula, imovel_image_url)
+            VALUES (%s, %s);
+        """
+        return self.db.execute_statement(statement, (matricula, url))
+    
+    def deleta_imagem_imovel(self, matricula: str, url: str):
+        statement = """
+            DELETE FROM imagem_imovel
+            WHERE matricula = %s AND imovel_image_url = %s;
+        """
+        return self.db.execute_statement(statement, (matricula, url))
+

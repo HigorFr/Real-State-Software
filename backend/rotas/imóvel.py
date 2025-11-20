@@ -1,6 +1,9 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from serviços.imóvel import ImóvelDatabase
 from utils.token_middleware import token_obrigatorio
+import os
+from flask import url_for
+from werkzeug.utils import secure_filename
 
 imovel_blueprint = Blueprint("imovel", __name__)
 
@@ -75,6 +78,8 @@ def cadastrar_imóvel(): #cadastra um novo imóvel
     descricao = json.get("descricao")
     bairro = json.get("bairro")
 
+    comodidades = json_data.get("comodidades")  # aqui você passa uma lista separada por vírgula
+
     if not all([cpf_prop, logradouro, número, CEP, cidade, bairro,matrícula]):
         return jsonify("Ha campos obrigatorios nao preenchidos"), 400
 
@@ -100,8 +105,140 @@ def cadastrar_imóvel(): #cadastra um novo imóvel
 
     if not registro:
         return jsonify("Nao foi possivel cadastrar o imovel."), 400
+    
+    if comodidades:
+        sucesso_comodidades = ImóvelDatabase().adiciona_comodidades_imóvel(matrícula, comodidades)
+        
+        if not sucesso_comodidades:
+            ImóvelDatabase().deleta_imóvel(matrícula)
+            return jsonify("Houve erro ao inserir as comodidades. Portanto, o cadastro do imovel foi desfeito"), 206
 
-    return jsonify("Imovel cadastrado com sucesso."), 200
+    return jsonify("Imovel e comodidades cadastrados com sucesso."), 200
+
+# Configurações
+UPLOAD_FOLDER_IMOVEIS = os.path.join(os.getcwd(), 'static', 'uploads', 'imoveis')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@imovel_blueprint.route("/imoveis/upload_fotos", methods=["POST"])
+@token_obrigatorio
+def upload_fotos_imovel():
+    # Diferente do usuário (que pegamos pelo token), aqui o imóvel não está "logado".
+    # O frontend DEVE mandar a matrícula para sabermos de quem são as fotos.
+    matrícula = request.form.get("matricula")
+
+    if not matrícula:
+        return jsonify({"error": "Matrícula é obrigatória para vincular as fotos."}), 400
+
+    # Verifica se enviaram arquivos na chave 'fotos'
+    # getlist pega VÁRIOS arquivos de uma vez
+    files = request.files.getlist('fotos') 
+
+    if not files or files[0].filename == '':
+        return jsonify({"error": "Nenhum arquivo de imagem encontrado."}), 400
+
+    imagens_salvas = []
+    erros = []
+    db = ImóvelDatabase()
+
+    # Cria pasta se não existir
+    if not os.path.exists(UPLOAD_FOLDER_IMOVEIS):
+        os.makedirs(UPLOAD_FOLDER_IMOVEIS)
+
+    for i, file in enumerate(files):
+        # 1. Valida tamanho e extensão
+        file.seek(0, os.SEEK_END)
+        size = file.tell()
+        file.seek(0)
+
+        if size > MAX_FILE_SIZE:
+            erros.append(f"Arquivo {file.filename} ignorado (maior que 5MB)")
+            continue
+        
+        if not allowed_file(file.filename):
+            erros.append(f"Arquivo {file.filename} ignorado (tipo inválido)")
+            continue
+
+        # 2. Gera nome único: matricula_indice_aleatorio.ext
+        # Usamos a matrícula para agrupar visualmente os arquivos na pasta
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        # Dica: Adicionamos 'i' para evitar sobrescrever se mandar 2 fotos iguais
+        filename = secure_filename(f"{matrícula}_{i}.{ext}") 
+        
+        file_path = os.path.join(UPLOAD_FOLDER_IMOVEIS, filename)
+        
+        try:
+            # 3. Salva no Disco
+            file.save(file_path)
+            
+            # 4. Gera URL
+            local_url = url_for('static', filename=f'uploads/imoveis/{filename}', _external=True)
+            
+            # 5. Salva DIRETAMENTE no banco (Tabela imagem_imovel)
+            if db.insere_imagem_imovel(matrícula, local_url):
+                imagens_salvas.append(local_url)
+            else:
+                erros.append(f"Erro ao salvar URL no banco para {filename}")
+
+        except Exception as e:
+            erros.append(f"Erro de sistema ao salvar {filename}: {str(e)}")
+
+    return jsonify({
+        "message": "Processamento de imagens finalizado.",
+        "sucesso_qtd": len(imagens_salvas),
+        "urls_salvas": imagens_salvas,
+        "erros": erros
+    }), 200
+
+@imovel_blueprint.route("/imoveis/imagem", methods=["DELETE"])
+@token_obrigatorio
+def deletar_imagem_imovel():
+    data = request.get_json()
+    matricula = data.get("matricula")
+    image_url = data.get("image_url")
+
+    if not matricula or not image_url:
+        return jsonify({"error": "Matrícula e URL da imagem são obrigatórios."}), 400
+
+    db = ImóvelDatabase()
+    
+    # 1. Tenta remover do Banco de Dados primeiro
+    # É mais seguro garantir que o link sumiu antes de apagar o arquivo
+    sucesso_db = db.deleta_imagem_imovel(matricula, image_url)
+    
+    if not sucesso_db:
+        return jsonify({"error": "Imagem não encontrada no banco ou erro ao deletar registro."}), 404
+
+    # 2. Tenta remover o arquivo físico (Limpeza)
+    try:
+        # A URL é algo como: http://localhost:5000/static/uploads/imoveis/1234_0.jpg
+        # Precisamos extrair apenas o nome do arquivo: "1234_0.jpg"
+        filename = image_url.split('/')[-1]
+        
+        # Monta o caminho absoluto do arquivo no servidor
+        # current_app.root_path aponta para a pasta raiz da sua aplicação Flask
+        file_path = os.path.join(os.getcwd(), 'static', 'uploads', 'imoveis', filename)
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            msg_arquivo = "Arquivo apagado com sucesso."
+        else:
+            msg_arquivo = "Arquivo físico não encontrado (pode já ter sido apagado)."
+
+    except Exception as e:
+        print(f"Erro ao apagar arquivo físico: {e}")
+        # Não retornamos erro 500 aqui porque o registro no banco JÁ foi apagado,
+        # então para o usuário a operação foi um sucesso (a imagem sumiu do sistema).
+        msg_arquivo = f"Erro ao apagar arquivo físico: {str(e)}"
+
+    return jsonify({
+        "message": "Imagem removida com sucesso.",
+        "details": msg_arquivo
+    }), 200
 
 @imovel_blueprint.route("/imoveis/alteracao", methods=["PUT"])
 @token_obrigatorio

@@ -29,6 +29,9 @@ def cria_usuário_completo(): #cadastra um usuário, seus eventuais tipos e seus
     if not all([cpf, prenome, sobrenome, data_nasc_str, email, senha, tel_usuario]):
         return jsonify("Todos os campos (cpf, prenome, sobrenome, data_nasc, email, senha, telefones) sao obrigatorios"), 400
     
+    if len(senha) < 6:
+        return jsonify("A senha deve ter pelo menos 6 dígitos."), 400
+    
     if proprietario is False and adquirente is False and corretor is False:
         return jsonify("E necessario selecionar ao menos um tipo de usuario (proprietario, adquirente ou corretor)."), 400
     
