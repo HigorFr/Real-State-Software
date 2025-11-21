@@ -258,10 +258,12 @@ data_fim BETWEEN '2025-11-19' AND '2025-12-19';
 -- 24. Insere um novo contrato (Venda ou Aluguel) no sistema, vinculando um imóvel a um proprietário e a um corretor responsável. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 /*INSERT INTO contrato (codigo, valor, status, data_inicio, data_fim, tipo, matricula_imovel, CPF_prop, CPF_corretor)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);*/
+VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s)
+RETURNING codigo;*/
 
 INSERT INTO contrato (codigo, valor, status, data_inicio, data_fim, tipo, matricula_imovel, CPF_prop, CPF_corretor)
-VALUES (31, 2500.00, 'Ativo', '2025-12-01', '2027-12-01', 'Aluguel', '1001001001001011', '12345678901', '28780010489');
+VALUES (DEFAULT, 2500.00, 'Ativo', '2025-12-01', '2027-12-01', 'Aluguel', '1001001001001011', '12345678901', '28780010489')
+RETURNING codigo;
 
 -- 25. Registra a assinatura de um contrato por um adquirente, vinculando o CPF do cliente ao código do contrato. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
@@ -301,10 +303,10 @@ ORDER BY data_inicio DESC;
 
 -- 29. Obtém todos os contratos de aluguel que estão com status 'Ativo', trazendo juntamente os dados básicos do imóvel (endereço).
 
-SELECT c.codigo,c.status, c.data_inicio, c.data_fim, c.valor, i.matricula, i.logradouro, i.numero
-        FROM contrato c
-        JOIN imovel i ON c.matricula_imovel = i.matricula
-        WHERE c.tipo='Aluguel' AND c.status='Ativo';
+SELECT c.codigo, c.status, c.data_inicio, c.data_fim, c.valor, c.CPF_prop, c.CPF_corretor, i.matricula, i.logradouro, i.numero
+FROM contrato c
+JOIN imovel i ON c.matricula_imovel = i.matricula
+WHERE c.tipo='Aluguel' AND c.status='Ativo';
 
 -- 30. Obtém o histórico de valores negociados (seja de venda ou aluguel) de todos os contratos associados a um imóvel específico, ordenados do mais recente para o mais antigo. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
