@@ -255,7 +255,7 @@ SELECT * FROM contrato
 WHERE tipo='Aluguel' AND status = 'Ativo' AND
 data_fim BETWEEN '2025-11-19' AND '2025-12-19';
 
--- 24. Insere um novo contrato (Venda ou Aluguel) no sistema, vinculando um imóvel a um proprietário e a um corretor responsável.
+-- 24. Insere um novo contrato (Venda ou Aluguel) no sistema, vinculando um imóvel a um proprietário e a um corretor responsável. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 /*INSERT INTO contrato (codigo, valor, status, data_inicio, data_fim, tipo, matricula_imovel, CPF_prop, CPF_corretor)
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);*/
@@ -263,7 +263,7 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);*/
 INSERT INTO contrato (codigo, valor, status, data_inicio, data_fim, tipo, matricula_imovel, CPF_prop, CPF_corretor)
 VALUES (31, 2500.00, 'Ativo', '2025-12-01', '2027-12-01', 'Aluguel', '1001001001001011', '12345678901', '28780010489');
 
--- 25. Registra a assinatura de um contrato por um adquirente, vinculando o CPF do cliente ao código do contrato
+-- 25. Registra a assinatura de um contrato por um adquirente, vinculando o CPF do cliente ao código do contrato. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 /*INSERT INTO assina(CPF_adq, codigo_c) 
 VALUES (%s, %s);*/
@@ -271,7 +271,7 @@ VALUES (%s, %s);*/
 INSERT INTO assina(CPF_adq, codigo_c) 
 VALUES ('50170230455', 31);
 
--- 26. Deleta um contrato do sistema.
+-- 26. Deleta um contrato do sistema. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 /* DELETE FROM contrato
 WHERE codigo = %s;*/
@@ -279,7 +279,7 @@ WHERE codigo = %s;*/
 DELETE FROM contrato
 WHERE codigo = 31;
 
--- 27. Atualiza o status de um contrato existente
+-- 27. Atualiza o status de um contrato existente. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 /*UPDATE contrato
 SET status = %s
@@ -289,7 +289,7 @@ UPDATE contrato
 SET status = 'Finalizado'
 WHERE codigo = 4;
 
--- 28. Obtém o histórico de períodos (data de início e fim) de todos os contratos de aluguel associados a um imóvel específico, ordenados do mais recente para o mais antigo.
+-- 28. Obtém o histórico de períodos (data de início e fim) de todos os contratos de aluguel associados a um imóvel específico, ordenados do mais recente para o mais antigo. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 /*SELECT codigo, matricula_imovel, data_inicio, data_fim FROM contrato
 WHERE tipo='Aluguel' AND matricula_imovel=%s
@@ -306,7 +306,7 @@ SELECT c.codigo,c.status, c.data_inicio, c.data_fim, c.valor, i.matricula, i.log
         JOIN imovel i ON c.matricula_imovel = i.matricula
         WHERE c.tipo='Aluguel' AND c.status='Ativo';
 
--- 30. Obtém o histórico de valores negociados (seja de venda ou aluguel) de todos os contratos associados a um imóvel específico, ordenados do mais recente para o mais antigo.
+-- 30. Obtém o histórico de valores negociados (seja de venda ou aluguel) de todos os contratos associados a um imóvel específico, ordenados do mais recente para o mais antigo. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 /*SELECT codigo, matricula_imovel, valor FROM contrato 
 WHERE matricula_imovel = %s 
@@ -325,11 +325,11 @@ SELECT i.matricula, i.logradouro, i.numero,
 		GROUP BY i.matricula
         ORDER BY nr_de_vezes_alugado DESC;
 
--- 32. Devolve o histórico de proprietários e adquirentes (ou inquilinos) associados a um imóvel através de seus contratos. A consulta recupera o nome do proprietário no momento do contrato e, se houver, o nome da pessoa que assinou (comprou ou alugou).
+-- 32. Devolve o histórico de proprietários e adquirentes (ou inquilinos) associados a um imóvel através de seus contratos. A consulta recupera o nome do proprietário no momento do contrato e, se houver, o nome da pessoa que assinou (comprou ou alugou). A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
 /*SELECT c.codigo, c.tipo, c.status, 
-       prop.prenome AS proprietario_nome, prop.sobrenome AS proprietario_sobrenome, 
-       adq.prenome AS adquirente_nome, adq.sobrenome AS adquirente_sobrenome
+prop.prenome AS proprietario_nome, prop.sobrenome AS proprietario_sobrenome, 
+adq.prenome AS adquirente_nome, adq.sobrenome AS adquirente_sobrenome
 FROM contrato c
 JOIN usuario prop ON c.CPF_prop = prop.CPF
 LEFT JOIN assina a ON c.codigo = a.codigo_c
@@ -346,3 +346,148 @@ LEFT JOIN assina a ON c.codigo = a.codigo_c
 LEFT JOIN usuario adq ON a.CPF_adq = adq.CPF
 WHERE c.matricula_imovel = '1001001001001001'
 ORDER BY c.codigo DESC;
+
+-- 33. Insere um registro de pagamento (parcela ou valor total) referente a um contrato específico. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*INSERT INTO pagamento (codigo_c, n_pagamento, data_vencimento, data_pagamento, valor, status, forma_pagamento, tipo)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s);*/
+
+INSERT INTO pagamento (codigo_c, n_pagamento, data_vencimento, data_pagamento, valor, status, forma_pagamento, tipo)
+VALUES (31, 1, '2026-01-01', NULL, 2500.00, 'Pendente', 'Boleto', 'Aluguel');
+
+-- 34. Atualiza o status de uma parcela ou pagamento específico de um contrato. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*UPDATE pagamento
+ SET status = %s
+ WHERE codigo_c = %s AND n_pagamento = %s;*/
+
+UPDATE pagamento
+SET status = 'Pago'
+WHERE codigo_c = 31 AND n_pagamento = 1;
+
+-- 35. Consulta o status e a data de vencimento de uma parcela específica. A lógica Python verifica se o status é 'Pendente' e se a data de vencimento é anterior à data atual. Se ambas as condições forem verdadeiras, o sistema chama internamente a função "Atualizar Status de Pagamento" para mudar o status para 'Atrasado' no banco de dados antes de retornar o valor).
+
+/* SELECT status, data_vencimento FROM pagamento
+WHERE codigo_c = %s AND n_pagamento = %s;*/
+
+SELECT status, data_vencimento FROM pagamento
+WHERE codigo_c = 31 AND n_pagamento = 1;
+
+-- 36. Obtém o histórico detalhado de pagamentos (realizados, pendentes ou atrasados) referentes a todos os contratos associados a um imóvel específico, ordenados pela data de vencimento mais recente.
+
+/*SELECT  p.codigo_c, p.n_pagamento, p.status, p.valor, p.data_vencimento, p.data_pagamento
+FROM pagamento p
+JOIN contrato c ON p.codigo_c = c.codigo
+WHERE c.matricula_imovel = %s
+ORDER BY p.data_vencimento DESC;*/
+
+SELECT p.codigo_c, p.n_pagamento, p.status, p.valor, p.data_vencimento, p.data_pagamento
+FROM pagamento p
+JOIN contrato c ON p.codigo_c = c.codigo
+WHERE c.matricula_imovel = '1001001001001001'
+ORDER BY p.data_vencimento DESC;
+
+-- 37. Obtém o histórico completo de pagamentos (realizados ou pendentes) de um adquirente específico, listando o valor, status e o endereço do imóvel referente a cada pagamento.
+
+/*SELECT p.codigo_c, p.n_pagamento, p.status, p.valor, i.logradouro, i.numero, p.data_vencimento, p.data_pagamento
+FROM pagamento p
+JOIN contrato c ON p.codigo_c = c.codigo
+JOIN imovel i ON c.matricula_imovel = i.matricula
+JOIN assina a ON c.codigo = a.codigo_c
+WHERE a.CPF_adq = %s
+ORDER BY p.data_vencimento DESC;*/
+
+SELECT p.codigo_c, p.n_pagamento, p.status, p.valor, i.logradouro, i.numero, p.data_vencimento, p.data_pagamento
+FROM pagamento p
+JOIN contrato c ON p.codigo_c = c.codigo
+JOIN imovel i ON c.matricula_imovel = i.matricula
+JOIN assina a ON c.codigo = a.codigo_c
+WHERE a.CPF_adq = '50170230455'
+ORDER BY p.data_vencimento DESC;
+
+-- 38. Busca os dados específicos de um corretor (Especialidade, CRECI, Região) e agrupa todos os seus telefones cadastrados em uma única string separada por vírgulas. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/* SELECT 
+c.especialidade, c.creci_codigo AS creci, c.regiao_atuacao,STRING_AGG(t.telefone, ',') AS telefone_contato
+FROM corretor c
+LEFT JOIN tel_usuario t ON c.CPF = t.CPF
+WHERE c.CPF = %s
+GROUP BY c.CPF, c.especialidade, c.creci_codigo, c.regiao_atuacao;*/
+
+SELECT 
+    c.especialidade, 
+    c.creci_codigo AS creci, 
+    c.regiao_atuacao,
+    STRING_AGG(t.telefone, ',') AS telefone_contato
+FROM corretor c
+LEFT JOIN tel_usuario t ON c.CPF = t.CPF
+WHERE c.CPF = '28780010489'
+GROUP BY c.CPF, c.especialidade, c.creci_codigo, c.regiao_atuacao;
+
+-- 39. Busca todos os telefones cadastrados para um usuário específico e os retorna em uma única string, separados por vírgula. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*SELECT STRING_AGG(telefone, ',') AS telefone_contato
+FROM tel_usuario
+WHERE CPF = %s;*/
+
+SELECT STRING_AGG(telefone, ',') AS telefone_contato
+FROM tel_usuario
+WHERE CPF = '31750890034';
+
+--  40. Busca a senha criptografada (hash) de um usuário específico na tabela de login para realizar a validação de acesso. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*SELECT senha FROM login WHERE CPF = %s;*/
+
+SELECT senha FROM login WHERE CPF = '12345678901';
+
+-- 41. Busca os dados cadastrais básicos (nome, email, nascimento, foto) de um usuário. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*SELECT prenome, sobrenome, email, data_nasc, profile_image_url
+FROM usuario WHERE CPF = %s;*/
+
+SELECT prenome, sobrenome, email, data_nasc, profile_image_url
+FROM usuario WHERE CPF = '12345678901';
+
+-- 42. Obtém o endereço de e-mail de um usuário específico através do CPF. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*SELECT email FROM usuario WHERE CPF = %s;*/
+
+SELECT email FROM usuario WHERE CPF = '12345678901';
+
+-- 43. Salva um código de 6 dígitos (OTP) e sua data de expiração para um usuário. Se o usuário já possuir um código salvo anteriormente, a cláusula ON CONFLICT atualiza o registro existente com o novo código e novo prazo, garantindo apenas um código ativo por CPF.
+
+/*INSERT INTO otp_codes (CPF, otp_code, expires_at)
+ VALUES (%s, %s, %s)
+ ON CONFLICT (CPF) DO UPDATE
+ SET otp_code = EXCLUDED.otp_code, expires_at = EXCLUDED.expires_at;*/
+
+INSERT INTO otp_codes (CPF, otp_code, expires_at)
+VALUES ('12345678901', '123456', '2025-11-20 14:30:00')
+ON CONFLICT (CPF) DO UPDATE
+SET otp_code = EXCLUDED.otp_code, expires_at = EXCLUDED.expires_at;
+
+-- 44. Busca o código OTP atual e sua data de expiração para um determinado CPF. O código Python usa esses dados para verificar se o token fornecido pelo usuário está correto e dentro do prazo.
+
+/*SELECT otp_code, expires_at 
+FROM otp_codes
+WHERE CPF = %s;*/
+
+SELECT otp_code, expires_at 
+FROM otp_codes
+WHERE CPF = '12345678901';
+
+-- 45. Remove o registro de OTP de um usuário. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
+
+/*DELETE FROM otp_codes WHERE CPF = %s;*/
+
+DELETE FROM otp_codes WHERE CPF = '12345678901';
+
+-- 46. Atualiza o hash da senha de um usuário na tabela de login. Esta operação geralmente ocorre após uma recuperação de senha bem-sucedida.
+
+/*UPDATE login
+SET senha = %s
+WHERE CPF = %s;*/
+
+UPDATE login
+SET senha = 'novohashseguro123456789...'
+WHERE CPF = '12345678901';
