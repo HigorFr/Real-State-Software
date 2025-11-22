@@ -20,9 +20,9 @@ def cadastra_contrato(): #insere um novo contrato e já preenche a tabela assina
     data_fim_str = json.get("data_fim")
     tipo = json.get("tipo")
     matrícula_imóvel = json.get("matricula_imovel")
-    CPF_prop = json.get("CPF_prop")
+    CPF_prop = json.get("cpf_prop")
     CPF_logado_corretor = request.cpf_usuario  #usar o cpf do token para maior segurança
-    CPF_adq = json.get("CPF_adq")
+    CPF_adq = json.get("cpf_adquirente")
 
     db_service = ContratoDatabase()
 
