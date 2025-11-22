@@ -54,10 +54,10 @@ def cria_usuário_completo(): #cadastra um usuário, seus eventuais tipos e seus
         return jsonify("Nao foi possivel criar usuario."), 400
     
     try:
-        hash_da_senha = gerar_hash_senha(senha)  #gera o hash da senha
-        db_service.insere_login(cpf, hash_da_senha) #salva o hash no banco de dados
+        hash_da_senha = gerar_hash_senha(senha)  
+        db_service.insere_login(cpf, hash_da_senha) 
     except Exception as e_login:
-        db_service.deleta_usuário(cpf) #se der erro ao criar o login, desfaz o cadastro do usuário
+        db_service.deleta_usuário(cpf) 
         return jsonify(f"Nao foi possivel criar o login (verifique se o 'ALTER TABLE' foi feito). Cadastro desfeito. Erro: {e_login}"), 400
 
     try:
@@ -139,7 +139,7 @@ def cadastra_cliente_pelo_corretor():
         if not sucesso_tel:
              raise Exception("Falha na validação ou inserção dos telefones.")
     except Exception as e:
-        db_service.deleta_usuário(cpf) # Rollback manual se falhar telefone
+        db_service.deleta_usuário(cpf) 
         return jsonify({"error": f"Erro ao cadastrar telefones: {str(e)}"}), 400
 
     try:
@@ -161,15 +161,14 @@ def cadastra_cliente_pelo_corretor():
 @usuário_blueprint.route("/usuario/telefones", methods=["POST"])
 @token_obrigatorio
 def adiciona_telefones_usuário(): #insere os telefones de um usuário (aqui vc passa uma lista separada por vírgula)
-    cpf_logado = request.cpf_usuario  #usar o cpf do token para maior segurança
+    cpf_logado = request.cpf_usuario  
     json = request.get_json()
-    tel_usuario = json.get("telefones") #aqui vc passa uma lista separada por vírgula
-
+    tel_usuario = json.get("telefones") 
     if not all([cpf_logado, tel_usuario]):
         return jsonify("Todos os campos (cpf, telefones) sao obrigatorios"), 400
 
     registro_tel=UsuárioDatabase().insere_lista_tel_usuário(
-        cpf_logado, #usar o cpf do token para maior segurança
+        cpf_logado, 
         tel_usuario
     )
 
@@ -180,17 +179,17 @@ def adiciona_telefones_usuário(): #insere os telefones de um usuário (aqui vc 
 
 @usuário_blueprint.route("/usuario/telefones", methods=["DELETE"])
 @token_obrigatorio
-def remove_telefones_usuário():  # remove os telefones de um usuário (aqui vc passa uma lista separada por vírgula)
-    cpf_logado = request.cpf_usuario  #usar o cpf do token para maior segurança
+def remove_telefones_usuário():  #remove os telefones de um usuário (aqui vc passa uma lista separada por vírgula)
+    cpf_logado = request.cpf_usuario  
     json = request.get_json()
-    tel_usuario = json.get("telefones") #aqui vc passa uma lista separada por vírgula
+    tel_usuario = json.get("telefones") 
 
     if not all([cpf_logado, tel_usuario]):
         return jsonify("Todos os campos (cpf, telefones) sao obrigatorios"), 400
     
 
     registro_tel=UsuárioDatabase().deleta_tel_usuário(
-        cpf_logado, #usar o cpf do token para maior segurança
+        cpf_logado, 
         tel_usuario
     )
 
@@ -235,7 +234,7 @@ def update_usuario_perfil():
 @usuário_blueprint.route("/usuario/deleta", methods=["DELETE"])
 @token_obrigatorio
 def deleta_usuário(): #deleta um usuário (e consequentemente seus telefones, por ter o on delete cascade no bd)
-    cpf_logado = request.cpf_usuario  #usar o cpf do token para maior segurança
+    cpf_logado = request.cpf_usuario  
     json = request.get_json()
 
     if not cpf_logado:
@@ -243,7 +242,7 @@ def deleta_usuário(): #deleta um usuário (e consequentemente seus telefones, p
     
 
     registro=UsuárioDatabase().deleta_usuário(
-        cpf_logado #usar o cpf do token para maior segurança
+        cpf_logado 
     )
 
     if not registro:
@@ -258,7 +257,7 @@ def get_perfil_imóvel_adquirente():  #obtém o perfil de imóveis de um adquire
 
     try:
         perfil = UsuárioDatabase().get_perfil_imóvel_adquirente(
-            cpf_logado #usa o CPF seguro
+            cpf_logado 
         )
         return jsonify(perfil), 200
     except Exception as e:
@@ -272,7 +271,7 @@ def get_info_imóvel_proprietário(): #obtém os imóveis de um proprietário, f
     
     try:
         info = UsuárioDatabase().get_info_imóvel_proprietário(
-            cpf_logado #usa o CPF seguro
+            cpf_logado 
         )
         return jsonify(info), 200
     except Exception as e:

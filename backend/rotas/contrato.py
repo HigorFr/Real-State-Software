@@ -21,7 +21,7 @@ def cadastra_contrato(): #insere um novo contrato e já preenche a tabela assina
     tipo = json.get("tipo")
     matrícula_imóvel = json.get("matricula_imovel")
     CPF_prop = json.get("cpf_prop")
-    CPF_logado_corretor = request.cpf_usuario  #usar o cpf do token para maior segurança
+    CPF_logado_corretor = request.cpf_usuario  
     CPF_adq = json.get("cpf_adquirente")
 
     db_service = ContratoDatabase()
@@ -58,7 +58,7 @@ def cadastra_contrato(): #insere um novo contrato e já preenche a tabela assina
                 "codigo": codigo_gerado
             }), 200
         else:
-            ContratoDatabase().deleta_contrato(codigo_gerado) #para garantir que o contrato não vai ficar sem preencher a tabela assina
+            ContratoDatabase().deleta_contrato(codigo_gerado) 
             return jsonify({"error": "Erro ao vincular adquirente. Contrato desfeito."}),
 
     return jsonify({"error": "Nao foi possivel criar contrato no banco."}), 400
@@ -67,7 +67,7 @@ def cadastra_contrato(): #insere um novo contrato e já preenche a tabela assina
 @contrato_blueprint.route("/contratos/deleta", methods=["DELETE"])
 @token_obrigatorio
 def deleta_contrato(): #deleta um contrato
-    ódigo = request.args.get("codigo")
+    código = request.args.get("codigo")
 
     if not código:
         return jsonify({"error": "O campo codigo e obrigatorio."}), 400
@@ -121,7 +121,6 @@ def get_todos_contratos():
     limit = request.args.get("limit", default=None, type=int)
 
     try:
-        # Passa o limite para o banco de dados
         resultados = ContratoDatabase().get_todos_contratos(limit=limit)
         return jsonify(resultados), 200
     except Exception as e:
@@ -132,7 +131,6 @@ def get_todos_contratos():
 def get_contratos_dashboard():
     try:
         stats = ContratoDatabase().get_dashboard_stats()
-        # Garante que retorna 0 se for None
         if not stats:
             stats = {"ativos": 0, "atrasados": 0, "vencendo": 0}
         return jsonify(stats), 200

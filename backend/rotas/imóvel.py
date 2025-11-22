@@ -128,7 +128,7 @@ def cadastrar_imóvel(): #cadastra um novo imóvel
     descricao = json.get("descricao")
     bairro = json.get("bairro")
 
-    comodidades = json.get("comodidades")  # aqui você passa uma lista separada por vírgula
+    comodidades = json.get("comodidades")  
 
     if not all([cpf_prop, logradouro, número, CEP, cidade, bairro,matrícula]):
         return jsonify({"error": "Ha campos obrigatorios nao preenchidos"}), 400
@@ -200,7 +200,6 @@ def upload_fotos_imovel():
         os.makedirs(UPLOAD_FOLDER_IMOVEIS)
 
     for i, file in enumerate(files):
-        # 1. Valida tamanho e extensão
         file.seek(0, os.SEEK_END)
         size = file.tell()
         file.seek(0)
@@ -212,23 +211,15 @@ def upload_fotos_imovel():
         if not allowed_file(file.filename):
             erros.append(f"Arquivo {file.filename} ignorado (tipo inválido)")
             continue
-
-        # 2. Gera nome único: matricula_indice_aleatorio.ext
-        # Usamos a matrícula para agrupar visualmente os arquivos na pasta
+ 
         ext = file.filename.rsplit('.', 1)[1].lower()
-        # Dica: Adicionamos 'i' para evitar sobrescrever se mandar 2 fotos iguais
         filename = secure_filename(f"{matrícula}_{i}.{ext}") 
         
         file_path = os.path.join(UPLOAD_FOLDER_IMOVEIS, filename)
         
         try:
-            # 3. Salva no Disco
             file.save(file_path)
-            
-            # 4. Gera URL
             local_url = url_for('static', filename=f'uploads/imoveis/{filename}', _external=True)
-            
-            # 5. Salva DIRETAMENTE no banco (Tabela imagem_imovel)
             if db.insere_imagem_imovel(matrícula, local_url):
                 imagens_salvas.append(local_url)
             else:
@@ -256,14 +247,11 @@ def deletar_imagem_imovel():
 
     db = ImóvelDatabase()
     
-    # 1. Tenta remover do Banco de Dados primeiro
-    # É mais seguro garantir que o link sumiu antes de apagar o arquivo
     sucesso_db = db.deleta_imagem_imovel(matricula, image_url)
     
     if not sucesso_db:
         return jsonify({"error": "Imagem não encontrada no banco ou erro ao deletar registro."}), 404
 
-    # 2. Tenta remover o arquivo físico (Limpeza)
     try:
         # A URL é algo como: http://localhost:5000/static/uploads/imoveis/1234_0.jpg
         # Precisamos extrair apenas o nome do arquivo: "1234_0.jpg"
@@ -371,7 +359,7 @@ def adiciona_comodidades_imóvel(): #adiciona comodidades a um imóvel
 def remove_comodidades_imóvel(): #remove as comodiades de um imóvel (através desse e do adicionar que alteramos as comodidades de um imóvel)
     json = request.get_json()
     matrícula = json.get("matricula")
-    comodidades = json.get("comodidades")  # aqui você passa uma lista separada por vírgula
+    comodidades = json.get("comodidades")  
 
     if not all([matrícula, comodidades]):
         return jsonify("Matricula e comodidades sao campos obrigatorios"), 400

@@ -69,8 +69,7 @@ def refresh_token():
 def register():
     print("\n--- INÍCIO LOG DE REGISTRO FLUTTER ---")
         
-    # Tenta obter o JSON da requisição
-    data = request.get_json(silent=True) # silent=True evita falha se o corpo não for JSON
+    data = request.get_json(silent=True) 
     
     if data is None:
             print("ERRO: Corpo da Requisição VAZIO ou NÃO É JSON válido.")

@@ -14,13 +14,11 @@ class ContratoDatabase:
         data_hoje_obj = datetime.now().date() 
         data_futura_obj = data_hoje_obj + timedelta(days=dias_ate_vencer)  
         
-        # As datas não são mais injetadas na string
         query = """
                 SELECT * FROM contrato
                 WHERE tipo='Aluguel' AND status = 'Ativo' AND
                 data_fim BETWEEN %s AND %s;
         """
-        # Os valores são passados como parâmetros
         params = (data_hoje_obj, data_futura_obj)
         
         return self.db.execute_select_all(query, params)
@@ -33,7 +31,6 @@ class ContratoDatabase:
         """
         params = (valor, status, data_inicio, data_fim, tipo, matricula_imovel, CPF_prop, CPF_corretor)
         
-        # Executa a inserção
         resultado = self.db.execute_select_one(statement, params)
         
         if resultado and 'codigo' in resultado:
@@ -53,7 +50,6 @@ class ContratoDatabase:
             DELETE FROM contrato
             WHERE codigo = %s;
         """
-        # (codigo,) - A vírgula é crucial para criar uma tupla de um item
         return self.db.execute_statement(statement, (codigo,)) 
     
     def altera_status_contrato(self, codigo:int, status:str): #altera status de um contrato
@@ -109,7 +105,6 @@ class ContratoDatabase:
             COUNT(*) FILTER (WHERE status = 'Ativo' AND data_fim BETWEEN CURRENT_DATE AND (CURRENT_DATE + INTERVAL '30 day')) as vencendo
         FROM contrato;
         """
-        # Nota: FILTER é sintaxe PostgreSQL moderna. Se der erro, use SUM(CASE WHEN...).
         return self.db.execute_select_one(statement)
     
     def get_valores_contratos_imóvel(self, matricula_imovel:str): #obtém histórico de valores dos contratos de um imóvel
@@ -122,7 +117,6 @@ class ContratoDatabase:
         return self.db.execute_select_all(statement, params)
     
     def get_mais_alugados(self): #obtém os imóveis mais alugados
-        # Esta consulta não tem input do usuário, então é segura como estava.
         statement="""
         SELECT i.matricula, i.logradouro, i.numero, 
         COUNT(c.codigo) AS nr_de_vezes_alugado

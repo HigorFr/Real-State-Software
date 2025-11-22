@@ -90,23 +90,16 @@ class ImóvelDatabase:
             params.append(bairro)
 
         if comodidade:
-            #filtra por imóveis que tenham todas as comodidades listadas
             comodidade_list = [item.strip() for item in comodidade.split(",") if item.strip()]
             if comodidade_list:
-                #ANY verifica se a comodidade é qualquer uma da lista
                 where_conditions.append("c.comodidade = ANY(%s)")
                 params.append(comodidade_list)
-                
-                # Adiciona a cláusula HAVING para garantir que TODAS as comodidades
-                # listadas estejam presentes (COUNT)
                 query += " WHERE " + " AND ".join(where_conditions)
                 query += " GROUP BY i.matricula HAVING COUNT(DISTINCT c.comodidade) = %s"
                 params.append(len(comodidade_list))
                 
-                #a query de comodidade é especial, então já a executamos
                 return self.db.execute_select_all(query, tuple(params))
 
-        #se não filtrou por comodidade, constrói a query normal
         if where_conditions:
             query += " WHERE " + " AND ".join(where_conditions)
         
@@ -214,7 +207,7 @@ class ImóvelDatabase:
             SET {', '.join(set_clauses)}
             WHERE matricula = %s;
         """
-        params.append(matricula) #adiciona a matrícula ao final da lista de params
+        params.append(matricula) 
         
         return self.db.execute_statement(statement, tuple(params))
     
@@ -231,15 +224,13 @@ class ImóvelDatabase:
         
         comodidade_list = [item.strip() for item in comodidades.split(",") if item.strip()]
         if not comodidade_list:
-            return True # Nada a adicionar
+            return True 
 
-        #cria os placeholders (%s, %s) para cada comodidade
         placeholders = ", ".join(["(%s, %s)"] * len(comodidade_list))
         
-        #cria a lista de parâmetros
         params = []
         for item in comodidade_list:
-            params.extend([matricula, item]) # Adiciona (matricula, comodidade) para cada item
+            params.extend([matricula, item])
 
         statement = f"""
                 INSERT INTO comodidades_imovel(matricula, comodidade) VALUES {placeholders};
@@ -249,7 +240,7 @@ class ImóvelDatabase:
     def remove_comodidades_imóvel(self, matricula:str, comodidades: str): #remove as comodiades de um imóvel (através desse e do adicionar que alteramos as comodidades de um imóvel)
         comodidade_list = [item.strip() for item in comodidades.split(",") if item.strip()]
         if not comodidade_list:
-            return True # Nada a remover
+            return True 
 
         statement = """
             DELETE FROM comodidades_imovel

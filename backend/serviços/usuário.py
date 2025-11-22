@@ -58,7 +58,7 @@ class UsuárioDatabase:
         
         tel_list_limpa = [tel.strip() for tel in tel_usuario.split(',') if tel.strip()] #para limpar a lista e não quebrar a consulta
         if not tel_list_limpa:
-            return True #nada a inserir, mas não é um erro
+            return True 
 
         tam_list= len(tel_list_limpa)
         telefones_atuais_count = self.get_total_telefones_por_cpf(cpf)
@@ -66,7 +66,6 @@ class UsuárioDatabase:
         if (telefones_atuais_count + tam_list) > 3:
             return False
         
-        #constrói placeholders e parâmetros de forma segura
         placeholders = ", ".join(["(%s, %s)"] * len(tel_list_limpa))
         params = []
         for item in tel_list_limpa:
@@ -93,7 +92,7 @@ class UsuárioDatabase:
     def deleta_tel_usuário(self, cpf: str, tel_usuario: str): #remove os telefones de um usuário (aqui vc passa uma lista separada por vírgula)
         tel_list_limpa = [tel.strip() for tel in tel_usuario.split(',') if tel.strip()] #para limpar a lista e não quebrar a consulta
         if not tel_list_limpa:
-            return True #nada a deletar, mas não é um erro
+            return True 
         
         telefones_atuais_count = self.get_total_telefones_por_cpf(cpf)
         telefones_para_deletar_count = len(tel_list_limpa)
@@ -178,7 +177,6 @@ class UsuárioDatabase:
         db = self.db
 
         try:
-            # 1. ATUALIZAÇÃO NA TABELA USUARIO
             statement_user = """
                 UPDATE usuario
                 SET prenome = %s, sobrenome = %s, email = %s, profile_image_url = %s
@@ -186,8 +184,6 @@ class UsuárioDatabase:
             """
             params_user = (prenome, sobrenome, email, profile_image_url, cpf)
             db.execute_statement(statement_user, params_user)
-
-            # 2. ATUALIZAÇÃO NA TABELA TEL_USUARIO (Limpar e Reinserir)
             statement_delete_tel = "DELETE FROM tel_usuario WHERE CPF = %s;"
             db.execute_statement(statement_delete_tel, (cpf,))
             if tel_usuario:

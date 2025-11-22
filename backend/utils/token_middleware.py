@@ -19,7 +19,6 @@ def token_obrigatorio(f):
             if payload["type"] != "access":
                 return jsonify({"error": "Token inválido (não é de acesso)"}), 401 
             
-            #anexa o CPF do usuário à requisição para uso posterior
             request.cpf_usuario = payload["cpf"] 
 
         except jwt.ExpiredSignatureError:
