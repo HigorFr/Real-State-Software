@@ -80,7 +80,7 @@ Procure por **Aura** na lista de aplicativos e abra normalmente.
    CREATE DATABASE imobiliaria;
 
 3. **Rode o script de população fornecido em script.sql**  
-    psql -U postgres -d imobiliaria -f populacao.sql
+    psql -U postgres -d imobiliaria -f script.sql
 
 4. **Instale as dependências Python**  
     pip install -r requirements.txt
