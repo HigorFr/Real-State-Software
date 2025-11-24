@@ -301,12 +301,12 @@ SELECT codigo, matricula_imovel, data_inicio, data_fim FROM contrato
 WHERE tipo='Aluguel' AND matricula_imovel='1001001001001007'
 ORDER BY data_inicio DESC;
 
--- 29. Obtém todos os contratos de aluguel que estão com status 'Ativo', trazendo juntamente os dados básicos do imóvel (endereço).
-
-SELECT c.codigo, c.status, c.data_inicio, c.data_fim, c.valor, c.CPF_prop, c.CPF_corretor, i.matricula, i.logradouro, i.numero
+-- 29. Retorna a lista completa de contratos (Venda e Aluguel, Ativos ou não), ordenada do mais recente para o mais antigo.
+ 
+SELECT c.codigo, c.status, c.tipo, c.data_inicio, c.data_fim, c.valor,  c.CPF_prop, c.CPF_corretor, i.matricula, i.logradouro, i.numero
 FROM contrato c
 JOIN imovel i ON c.matricula_imovel = i.matricula
-WHERE c.tipo='Aluguel' AND c.status='Ativo';
+ORDER BY c.codigo DESC; 
 
 -- 30. Obtém o histórico de valores negociados (seja de venda ou aluguel) de todos os contratos associados a um imóvel específico, ordenados do mais recente para o mais antigo. A seguir apresentamos um exemplo de uso, substituindo os %s por valores.
 
@@ -494,3 +494,49 @@ WHERE CPF = %s;*/
 UPDATE login
 SET senha = 'novohashseguro123456789...'
 WHERE CPF = '12345678901';
+
+-- 47. Calcula estatísticas para o dashboard em uma única consulta otimizada. Conta contratos ativos, atrasados (data fim < hoje) e vencendo em 30 dias.
+
+SELECT
+COUNT(*) FILTER (WHERE status = 'Ativo') as ativos,
+COUNT(*) FILTER (WHERE status = 'Ativo' AND data_fim < CURRENT_DATE) as atrasados,
+COUNT(*) FILTER (WHERE status = 'Ativo' AND data_fim BETWEEN CURRENT_DATE AND (CURRENT_DATE + INTERVAL '30 day')) as vencendo
+FROM contrato;
+
+-- 48. Atualiza todos os dados cadastrais de um imóvel específico de uma única vez.
+
+/*UPDATE imovel
+SET n_quartos = %s, 
+ valor_venal = %s, 
+metragem = %s, 
+tipo = %s, 
+mobiliado = %s, 
+possui_garagem = %s, 
+n_reformas = %s, 
+finalidade = %s, 
+logradouro = %s, 
+complemento = %s, 
+numero = %s, 
+cep = %s, 
+cidade = %s, 
+descricao = %s, 
+bairro = %s
+WHERE matricula = %s;*/
+
+UPDATE imovel
+SET n_quartos = 3, 
+    valor_venal = 1100000.00, 
+    metragem = 180.0, 
+    tipo = 'Casa', 
+    mobiliado = true, 
+    possui_garagem = true, 
+    n_reformas = 2, 
+    finalidade = 'Residencial', 
+    logradouro = 'Rua Maria Amália Lopes de Azevedo', 
+    complemento = NULL, 
+    numero = '3000', 
+    cep = '02350001', 
+    cidade = 'São Paulo', 
+    descricao = 'Casa recém-reformada no Tremembé, agora mobiliada.', 
+    bairro = 'Tremembé'
+WHERE matricula = '1001001001001011';
