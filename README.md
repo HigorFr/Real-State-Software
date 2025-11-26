@@ -72,14 +72,15 @@ Procure por **Aura** na lista de aplicativos e abra normalmente.
 ---
 
 ## Instalação no Linux
-## ** 1. Baixe o Release**
-Acesse a aba **Releases** do repositório e faça download do arquivo aura-linxu-release.zip
+## **1. Baixe o Release**
+Acesse a aba **Releases** do repositório e faça download do arquivo aura-linux-release.zip
 
 ### **2. Extraia o conteúdo**
 Descompacte o `.zip` em qualquer pasta.
 
 ### **3. Execute**
 Dê permissão de execução ao arquivo: `chmod +x aura_frontend`
+
 Execute o arquivo no terminal no mesmo diretório: `./aura_frontend`
 
 ## Lembrando que o backend é necessário
