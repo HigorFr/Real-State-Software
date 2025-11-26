@@ -1,6 +1,6 @@
 # Aura - Sistema de Gestão para Corretoras de Imóveis
 
-**Aura** é um aplicativo multiplataforma desenvolvido como projeto da disciplina **Banco de Dados I**, ministrada pela professora **Patrícia** na **EACH USP**.  
+**Aura** é um aplicativo multiplataforma desenvolvido como projeto da disciplina **Banco de Dados I**, ministrada pela professora **Patrícia Rufino Oliveira** na **EACH USP**.  
 O sistema foi criado para atender **companias corretoras com grande volume de corretores**, oferecendo uma plataforma moderna e organizada para gestão imobiliária deles.
 
 ---
@@ -71,6 +71,17 @@ Procure por **Aura** na lista de aplicativos e abra normalmente.
 
 ---
 
+## Instalação no Linux
+## ** 1. Baixe o Release**
+Acesse a aba **Releases** do repositório e faça download do arquivo aura-linxu-release.zip
+
+### **2. Extraia o conteúdo**
+Descompacte o `.zip` em qualquer pasta.
+
+### **3. Execute**
+Dê permissão de execução ao arquivo: `chmod +x aura_frontend`
+Execute o arquivo no terminal no mesmo diretório: `./aura_frontend`
+
 ## Lembrando que o backend é necessário
 
 1. **Inicie o servidor PostgreSQL**  
@@ -87,3 +98,10 @@ Procure por **Aura** na lista de aplicativos e abra normalmente.
 
 5. **Execute o servidor**  
     python main.py
+
+**Observação**: Para funcionar a verificação com código de OTP, é necessário cadastrar um email e também uma senha de app de SMTP no Gmail (para enviar códigos de recuperação para o e-mail cadastrado). Isso pode ser feito no backend/main.py, alterando o campo 'MAIL_USERNAME', 'MAIL_DEFAULT_SENDER' e 'MAIL_PASSWORD'. No arquivo, estão alguns exemplos de e-mail e senha, mas que não funcionam diretamente (por motivos de segurança). Porém para as outras funcionalidades, isso não é necessário.
+
+Uma outra observação é que tanto o backend quanto o frontend devem rodar na mesma máquina (porque o IP padrão é o localhost, 127.0.0.1) e a porta do backend é a 8000. Se forem usados portas em dispositivos diferentes, é necessário ajustar para o IP da rede local, o que pode ser ajustado no frontend recompilando os arquivos (no flutter) e mudando frontend/lib/core/api/constants.dart para o IP do backend.
+
+O Python utilizado é o Python 3.8 para rodar o código do backend, mas testamos com o Python 3.14 e funcionou também.
+
